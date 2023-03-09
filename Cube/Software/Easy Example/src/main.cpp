@@ -44,36 +44,16 @@ void display_clear() { memset(cube, 0, sizeof(cube)); }
 void loop() {
   static int y = 0;
   static int a = 1;
-  static int s = 0;
 
-  if (s++ < 10) {
-    for (int x = 0; x < width; x++) {
-      cube[x][y][0] = CRGB(100, 80 * x, 0);
-    }
-    int t = y + a;
-    if (t > height - 1 || t < 0) a = -a;
-    y += a;
-    display_update(1000);
-    display_clear();
-  } else {
-    static int xx = 0;
-    static int yy = 0;
-    static int zz = 0;
-    cube[xx++][yy][zz] = CRGB((xx + 1) * 40, (yy) * 10, (zz) * 10);
-    if (xx > width - 1) {
-      xx = 0;
-      yy++;
-    }
-    if (yy > height - 1) {
-      yy = 0;
-      zz++;
-    }
-    if (zz > depth - 1) {
-      zz = 0;
-      s = 0;
-      display_update(3000);
-      display_clear();
-    }
-    display_update(20);
+  for (int x = 0; x < width; x++) {
+    cube[x][y][0] = CRGB(40, 0, 40);
+    cube[x][y][1] = CRGB(50, 0, 0);
+    cube[x][y][2] = CRGB(0, 80, 0);
+    cube[x][y][3] = CRGB(0, 0, 200);
   }
+  int t = y + a;
+  if (t > height - 1 || t < 0) a = -a;
+  y += a;
+  display_update(200);
+  display_clear();
 }
