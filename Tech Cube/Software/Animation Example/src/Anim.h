@@ -8,7 +8,7 @@
 #include "Math3D.h"
 #include "Math8.h"
 #include "main.h"
-#include "Charset.h"
+#include "img/Anim1.h"
 
 class Anim {
  private:
@@ -18,6 +18,7 @@ class Anim {
 
  public:
   void init() {
+    frame = 0;
     hue16_speed = 30 * 255;
   }
 
@@ -26,14 +27,17 @@ class Anim {
     for (uint8_t z = 0; z < 4; z++) {
       for (uint8_t x = 0; x < 4; x++) {
         for (uint8_t y = 0; y < 4; y++) {
-          uint16_t offset = x + (24 - y * 8) + ((z&1) << 2) + ((z&2) << 4);
-          uint32_t data = charset_data[33][offset];
+          uint16_t offset = (z << 2) + ((3 - y) << 4)  + x;
+          uint32_t data = anim1_data[frame][offset];
           if (data >> 24 & 0xff) {
             cube[x][y][z] = CRGB(data & 0xff, data >> 8 & 0xff, data >> 16 & 0xff);
           }
         }
       }
     }
+    if (++frame >= ANIM1_DATA_FRAME_COUNT)
+      frame = 0;
   }
+  
 };
 #endif

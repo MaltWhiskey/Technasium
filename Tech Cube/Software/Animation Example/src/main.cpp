@@ -22,6 +22,7 @@ void setup() {
   FastLED.addLeds<WS2812B, LED_PIN, RGB>(leds, sizeof(leds) / sizeof(CRGB));
   FastLED.setDither(false);
   helix.init();
+  anim.init();
 }
 
 // Move 3D Cube data to 1D LED array
@@ -54,7 +55,6 @@ void loop() {
 
   //helix.draw(dt);
   anim.draw(dt);
-  
-  display_update(0);
+  display_update(500);
   display_clear();
 }
