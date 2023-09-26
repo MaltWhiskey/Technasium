@@ -55,6 +55,6 @@ void loop() {
 
   //helix.draw(dt);
   anim.draw(dt);
-  display_update(500);
+  display_update(333);
   display_clear();
 }
