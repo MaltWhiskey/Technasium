@@ -55,6 +55,10 @@ void loop() {
 
   //helix.draw(dt);
   anim.draw(dt);
+<<<<<<< HEAD
   display_update(333);
+=======
+  display_update(500);
+>>>>>>> daf2223e8a0c3d85abe15c35a344fe7f027e7af0
   display_clear();
 }
