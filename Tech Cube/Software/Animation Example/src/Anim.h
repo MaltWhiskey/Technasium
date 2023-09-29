@@ -9,7 +9,9 @@
 #include "Math8.h"
 #include "main.h"
 #include "img/Anim1.h"
-
+#ifndef ANIM1_DATA_FRAME_RATE
+#define ANIM1_DATA_FRAME_RATE 2
+#endif
 class Anim {
  private:
   int16_t hue16;
