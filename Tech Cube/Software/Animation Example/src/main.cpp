@@ -54,8 +54,9 @@ void loop() {
   float dt = delta_time / 1000000.0f;
 
   //helix.draw(dt);
-  anim.draw(dt);
-  display_update(333);
-  display_update(500);
-  display_clear();
+  if (ANIM1_DATA_FRAME_RATE != 0) {
+    anim.draw(dt);
+    display_update(1000/ANIM1_DATA_FRAME_RATE);
+    display_clear();
+  }
 }
