@@ -35,22 +35,20 @@ void loop() {
   static uint8_t wave;
   static double ldr_avg = 0.0;
   const float alpha = 0.3f;
-  const double deviation = 20;
+  const double deviation = 30;
   
-  uint16_t ldr_value = analogRead(LDR_PIN);
-  ldr_avg = (ldr_value * alpha) + (ldr_avg * (1 - alpha));
+  if(!play) {
+    uint16_t ldr_value = analogRead(LDR_PIN);
+    ldr_avg = (ldr_value * alpha) + (ldr_avg * (1 - alpha));
 
-  if(abs(ldr_avg - ldr_value) > deviation) {
-    motion = true;
-    Serial.println("motion");
+    motion = (abs(ldr_avg - ldr_value) > deviation);
+
+    if(motion && millis() >= coolDown) {
+      play = true;
+      startTime = micros();
+    } 
   }
-
-  if(motion && !play && millis() >= coolDown) {
-    play = true;
-    startTime = micros();
-  } 
-
-  if(play) {
+  else {
     unsigned long pos = (micros() - startTime) / (1000000 / sample[nr].rate);
     if(pos < sample[nr].size) {
       wave = sample[nr].data[pos];
@@ -66,9 +64,9 @@ void loop() {
     }
     else
     {
-      nr=(nr++)%3;
+      nr=(++nr)%3;
       play = false;
-      motion = false;
+      coolDown = millis() + 1000;
       digitalWrite(WLED_PIN, LOW);
       digitalWrite(OLED_PIN, HIGH);
     } 
