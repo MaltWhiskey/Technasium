@@ -34,7 +34,7 @@ void loop() {
 
   static double ldr_avg = 0.0;
   const float alpha = 0.3f;
-  const double deviation = 50;
+  const double deviation = 40;
   
   if(!play) {
     uint16_t ldr_value = analogRead(LDR_PIN);
