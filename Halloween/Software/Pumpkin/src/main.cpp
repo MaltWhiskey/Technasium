@@ -26,26 +26,24 @@ void setup() {
  *----------------------------------------------------------------------------*/
 void loop() {
   static boolean play = false;
-  static boolean motion = false;
   static uint8_t nr = 0;
+  static uint8_t wave;
   static unsigned long startTime = 0;
-  
   // Allow for 1 second LDR calibration
   static unsigned long coolDown = millis() + 1000;
-  static uint8_t wave;
+
   static double ldr_avg = 0.0;
   const float alpha = 0.3f;
-  const double deviation = 30;
+  const double deviation = 50;
   
   if(!play) {
     uint16_t ldr_value = analogRead(LDR_PIN);
     ldr_avg = (ldr_value * alpha) + (ldr_avg * (1 - alpha));
-
-    motion = (abs(ldr_avg - ldr_value) > deviation);
-
-    if(motion && millis() >= coolDown) {
-      play = true;
-      startTime = micros();
+    if(millis() >= coolDown) {
+      if(abs(ldr_avg - ldr_value) > deviation) {
+        play = true;
+        startTime = micros();
+      }
     } 
   }
   else {
