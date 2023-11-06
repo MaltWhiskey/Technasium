@@ -9,7 +9,7 @@
 // LEFT  -> EN,3,5,7,9,11,12,3V3
 static const uint8_t LDR_PIN = 3;
 static const uint8_t DAC_PIN = 18;
-static const uint8_t PIR_PIN = 35;
+static const uint8_t PIR_PIN = 33;
 static const uint8_t OLED_PIN = 37;
 static const uint8_t WLED_PIN = 39;
 
@@ -24,7 +24,7 @@ void setup() {
   pinMode(PIR_PIN, INPUT);
   pinMode(OLED_PIN, OUTPUT);
   pinMode(WLED_PIN, OUTPUT);
-  digitalWrite(OLED_PIN, LOW);
+  digitalWrite(WLED_PIN, LOW);
   digitalWrite(OLED_PIN, HIGH);
 }
 /*------------------------------------------------------------------------------
@@ -42,6 +42,8 @@ void loop() {
   const float slow_alpha = 0.005f;
   const uint16_t threshold = 200;
 
+  static long idx = 0;
+
   if (!play) {
     uint16_t ldr_value = analogRead(LDR_PIN);
     uint16_t pir_value = digitalRead(PIR_PIN);
@@ -53,6 +55,7 @@ void loop() {
       play = true;
       startTime = micros();
     }
+    Serial.printf("pir #%d, val=%d\n",idx++,pir_value);
 
   } else {
     digitalWrite(OLED_PIN, LOW);
