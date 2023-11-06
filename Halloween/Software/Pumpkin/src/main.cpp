@@ -13,8 +13,8 @@ static const uint8_t PIR_PIN = 35;
 static const uint8_t OLED_PIN = 37;
 static const uint8_t WLED_PIN = 39;
 
-const sample_dsc_t sample[] = {hiss_dsc, howl_dsc, magniet_dsc, scream_dsc,
-                               thunder_dsc};
+const sample_dsc_t sample[] = {hiss_dsc,   howl_dsc,    magniet_dsc,
+                               scream_dsc, thunder_dsc, macabre_dsc};
 
 void setup() {
   Serial.begin(115200);
@@ -67,7 +67,7 @@ void loop() {
       }
     } else {
       play = false;
-      nr = (++nr) % 5;  // sizeof(sample);
+      nr = (++nr) % (sizeof(sample) / sizeof(sample_dsc_t));
       digitalWrite(WLED_PIN, LOW);
       digitalWrite(OLED_PIN, HIGH);
       coolDown = millis() + 1000;
