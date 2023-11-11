@@ -1,6 +1,7 @@
-#include "WebServer.h"
+#include "Core/WebServer.h"
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include <DNSServer.h>
 #include <ESPAsyncWebServer.h>
 #include <ESPmDNS.h>
@@ -8,7 +9,6 @@
 #include <WebSocketsServer.h>
 #include <WiFi.h>
 
-#include "ArduinoJson.h"
 #include "Core/Config.h"
 
 #define WEBSERVER_PORT 80
@@ -17,8 +17,6 @@
 #define ACCESSPOINT_SSID "CUBE"
 #define ACCESSPOINT_PASS "^3"
 #define DNSSERVER_PORT 53
-// This json document size has plenty of space to hold commands send to the gui.
-#define COMMAND_DOC_SIZE 255
 
 namespace WebServer {
 
@@ -106,7 +104,7 @@ void onIndexRequest(AsyncWebServerRequest* request) {
     request->send(SPIFFS, "/index.html", "text/html");
   else if (request->url().equals("/gui.json")) {
     String buffer;
-    // config.serialize(buffer);
+    config.serialize(buffer);
     request->send(200, "application/json", buffer);
   } else if (SPIFFS.exists(request->url()))
     if (request->url().endsWith(".html")) {
@@ -123,7 +121,6 @@ void onIndexRequest(AsyncWebServerRequest* request) {
       request->send(404, "text/plain", "Mime-Type Not Found");
     }
   else {
-    // request->send(404, "text/plain", "Not Found");
     request->redirect("/index.html");
   }
 }
@@ -141,7 +138,7 @@ void onWebSocketEvent(uint8_t client_num, WStype_t type, uint8_t* payload,
     } break;
     // Text received from a connected client
     case WStype_TEXT: {
-      // config.execute(payload);
+      config.execute(payload);
     } break;
     case WStype_BIN:
     case WStype_FRAGMENT_TEXT_START:

@@ -10,6 +10,8 @@
 static const uint8_t LDR_PIN = 3;
 static const uint8_t DAC_PIN = 18;
 static const uint8_t PIR_PIN = 33;
+// The PIR_PIN stays high for aproximately 8 seconds after trigger
+static const long PIR_DELAY = 10000;
 static const uint8_t OLED_PIN = 37;
 static const uint8_t WLED_PIN = 39;
 
@@ -35,12 +37,12 @@ void loop() {
   static uint8_t nr = 0;
   static uint8_t wave;
   static unsigned long startTime = 0;
-  static unsigned long coolDown = 0;
+  static unsigned long coolDown = millis() + PIR_DELAY;
   static float fast_avg = 0.0;
   static float slow_avg = 0.0;
   const float fast_alpha = 0.050f;
   const float slow_alpha = 0.005f;
-  const uint16_t threshold = 200;
+  const uint16_t threshold = 250;
 
   static long idx = 0;
 
@@ -51,12 +53,11 @@ void loop() {
     slow_avg = (ldr_value * slow_alpha) + (slow_avg * (1 - slow_alpha));
     uint16_t deviation = abs(slow_avg - fast_avg);
 
-    if (millis() >= coolDown && (deviation > threshold)) {
+    if (millis() >= coolDown && ((deviation > threshold) || pir_value)) {
       play = true;
       startTime = micros();
     }
-    Serial.printf("pir #%d, val=%d\n",idx++,pir_value);
-
+    // Serial.printf("pir #%d, val=%d\n", idx++, pir_value);
   } else {
     digitalWrite(OLED_PIN, LOW);
     unsigned long pos = (micros() - startTime) / (1000000 / sample[nr].rate);
@@ -73,7 +74,7 @@ void loop() {
       nr = (++nr) % (sizeof(sample) / sizeof(sample_dsc_t));
       digitalWrite(WLED_PIN, LOW);
       digitalWrite(OLED_PIN, HIGH);
-      coolDown = millis() + 1000;
+      coolDown = millis() + PIR_DELAY;
     }
   }
 }

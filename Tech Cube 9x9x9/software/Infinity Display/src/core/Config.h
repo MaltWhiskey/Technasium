@@ -1,9 +1,16 @@
 #ifndef MAIN_H
 #define MAIN_H
 #include <Arduino.h>
+#include <ArduinoJson.h>
+#include <SPIFFS.h>
 #include <stdint.h>
+
+// Json document size to hold the commands send between client/server
+#define COMMAND_DOC_SIZE 255
+// Json document size to hold the config (depends on config size)
+#define CONFIG_DOC_SIZE 8192
 /*-----------------------------------------------------------------------------
- * Evil global parameters
+ * Global parameters
  *
  * These parameters are used for dynamically changing runtime operation. They
  * can (optionally) be loaded from and writen to persistant storage.
@@ -12,8 +19,17 @@
  * dynamically set runtime parameters. Init only gets called when an animation
  * starts or restarts draw gets called every animation frame so choose wisely
  * where to apply. And let these parameters take effect.
+ *
+ * After creation of the config object, call load() to load the configuration
+ * from the "config.json" file and apply the values to the config struct.
+ *
+ * If no "config.json" exists the config structs keeps the values supplied in
+ * the code. After saveing a "config.json" is freshly created.
  *---------------------------------------------------------------------------*/
 struct Config {
+  struct {
+    uint16_t max_milliamps = 18000;
+  } power;
   struct {
     struct {
       char ssid[32] = "-^..^-";
@@ -181,6 +197,93 @@ struct Config {
       boolean updated = false;
     } fft;
   } hid;
+
+  File open(const char* name, const char* mode) {
+    if (!SPIFFS.begin()) {
+      Serial.println("Error mounting SPIFFS");
+      return (File)0;
+    }
+    File file = SPIFFS.open(name, mode);
+    if (!file) {
+      Serial.printf("Error opening file for %s\n", mode);
+      return (File)0;
+    }
+    return file;
+  }
+
+  void load() {
+    if (File file = open("/config.json", FILE_READ)) {
+      String buffer = file.readString();
+      Serial.printf("%u bytes read from config.json\n", buffer.length());
+      file.close();
+      deserialize(buffer);
+    }
+  }
+
+  void save() {
+    if (File file = open("/config.json", FILE_WRITE)) {
+      String buffer;
+      serialize(buffer);
+      int bytesWritten = file.print(buffer);
+      file.close();
+      Serial.printf("%u bytes written to config.json\n", bytesWritten);
+    }
+  }
+
+  void serialize(String& buffer) {
+    DynamicJsonDocument doc(CONFIG_DOC_SIZE);
+    JsonObject settings = doc.createNestedObject("settings");
+  };
+
+  void deserialize(String buffer) {
+    DynamicJsonDocument doc(CONFIG_DOC_SIZE);
+    DeserializationError err = deserializeJson(doc, buffer);
+    if (err) {
+      Serial.printf("Deserialization error: %s\n", err.c_str());
+      return;
+    }
+
+    power.max_milliamps =
+        doc["power"]["max_milliamps"]["value"] | power.max_milliamps;
+
+    strlcpy(network.wifi.ssid,
+            doc["network"]["wifi"]["ssid"]["value"] | network.wifi.ssid,
+            sizeof(network.wifi.ssid));
+    strlcpy(network.wifi.password,
+            doc["network"]["wifi"]["password"]["value"] | network.wifi.password,
+            sizeof(network.wifi.password));
+    strlcpy(
+        network.server.hostname,
+        doc["network"]["server"]["hostname"]["value"] | network.server.hostname,
+        sizeof(network.server.hostname));
+    network.server.port =
+        doc["network"]["server"]["port"]["value"] | network.server.port;
+  }
+
+  void execute(uint8_t* char_buffer) {
+    StaticJsonDocument<COMMAND_DOC_SIZE> doc;
+    DeserializationError err = deserializeJson(doc, char_buffer);
+    if (err) {
+      Serial.printf("Deserialization error: %s\n", err.c_str());
+      return;
+    }
+    serializeJson(doc, Serial);
+    Serial.println();
+
+    String event = doc["event"];
+    if (event.equals("activate")) {
+      animation.changed = true;
+      animation.play_one = true;
+      animation.animation = doc["target"] | animation.animation;
+    } else if (event.equals("update")) {
+      String string_buffer;
+      doc.remove("event");
+      serializeJson(doc, string_buffer);
+      deserialize(string_buffer);
+    } else if (event.equals("save")) {
+      save();
+    }
+  }
 };
 // All cpp files that include this link to a single config struct
 extern struct Config config;
