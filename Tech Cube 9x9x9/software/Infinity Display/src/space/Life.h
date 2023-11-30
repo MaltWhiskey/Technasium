@@ -263,10 +263,7 @@ class Life : public Animation {
             i += 4;
           else
             continue;
-          // voxel(x, y, z, colors[i].scaled(brightness));
-          // This game of life is for a 16^3 display, this will adjust the
-          // center Wrapping will be lost and there is a change cells will be
-          // alive while nothing is in view.
+          // Quick hack to display in a 9^3 cube instead of a 16^3
           voxel(x - 4, y - 4, z - 4, colors[i].scaled(brightness));
         }
       }

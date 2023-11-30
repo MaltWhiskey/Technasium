@@ -13,7 +13,6 @@ Color Display::cube[2][width][height][depth];
 static CRGB leds[Display::width * Display::height * Display::depth];
 
 void Display::begin() {
-  // Setup led controller and output pin
   const static uint16_t FRAME = 9 * 9;
   FastLED.addLeds<WS2812B, 19, GRB>(leds + FRAME * 0, FRAME * 3);
   FastLED.addLeds<WS2812B, 18, GRB>(leds + FRAME * 3, FRAME * 3);

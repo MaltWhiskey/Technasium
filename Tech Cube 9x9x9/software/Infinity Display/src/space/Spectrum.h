@@ -93,6 +93,8 @@ class Spectrum : public Animation {
         if (a > amplitude[i]) {
           amplitude[i] = a;
         }
+        ///
+        amplitude[i] = a;
       }
     }
 

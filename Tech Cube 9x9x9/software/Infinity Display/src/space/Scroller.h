@@ -2,7 +2,7 @@
 #define SCROLLER_H
 
 #include "Animation.h"
-#include "gfx/Charset2.h"
+#include "gfx/Charset.h"
 #include "power/Math8.h"
 
 class Scroller : public Animation {
@@ -91,6 +91,7 @@ class Scroller : public Animation {
             Vector3 pixel = q.rotate(
                 Vector3(x / (CHARSET_FRAME_WIDTH - 1.0f), 0, -1) * radius);
             pixel += Vector3(-radius / 2, -radius / 2, radius / 2);
+            pixel = Vector3(pixel.z, pixel.y, pixel.x);
             voxel(pixel, c.scale(brightness).gamma());
           }
         }

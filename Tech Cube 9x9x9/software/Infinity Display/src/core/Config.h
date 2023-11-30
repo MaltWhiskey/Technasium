@@ -232,7 +232,7 @@ struct Config {
 
   void serialize(String& buffer) {
     DynamicJsonDocument doc(CONFIG_DOC_SIZE);
-    JsonObject settings = doc.createNestedObject("settings");
+    // JsonObject settings = doc.createNestedObject("settings");
   };
 
   void deserialize(String buffer) {
