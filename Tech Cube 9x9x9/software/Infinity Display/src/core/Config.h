@@ -2,7 +2,7 @@
 #define MAIN_H
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include <stdint.h>
 
 // Json document size to hold the commands send between client/server
@@ -199,11 +199,11 @@ struct Config {
   } hid;
 
   File open(const char* name, const char* mode) {
-    if (!SPIFFS.begin()) {
-      Serial.println("Error mounting SPIFFS");
+    if (!LittleFS.begin()) {
+      Serial.println("Error mounting LittleFS");
       return (File)0;
     }
-    File file = SPIFFS.open(name, mode);
+    File file = LittleFS.open(name, mode);
     if (!file) {
       Serial.printf("Error opening file for %s\n", mode);
       return (File)0;

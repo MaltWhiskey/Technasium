@@ -2,7 +2,7 @@
 #define LIFE_H
 
 #include "Animation.h"
-#include "Power/Math8.h"
+#include "power/Math8.h"
 
 class Life : public Animation {
  private:

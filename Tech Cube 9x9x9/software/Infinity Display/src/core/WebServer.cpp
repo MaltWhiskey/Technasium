@@ -1,15 +1,13 @@
-#include "Core/WebServer.h"
+#include "core/WebServer.h"
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <DNSServer.h>
-#include <ESPAsyncWebServer.h>
 #include <ESPmDNS.h>
-#include <SPIFFS.h>
-#include <WebSocketsServer.h>
+#include <LittleFS.h>
 #include <WiFi.h>
 
-#include "Core/Config.h"
+#include "core/Config.h"
 
 #define WEBSERVER_PORT 80
 #define WEBSOCKET_PORT 1337
@@ -28,8 +26,8 @@ boolean AP_MODE;
 
 void begin() {
   // Start file system
-  if (!SPIFFS.begin()) {
-    Serial.println("Error mounting SPIFFS");
+  if (!LittleFS.begin()) {
+    Serial.println("Error mounting LittleFS");
   }
   // Start WiFi
   Serial.print("Starting WiFi");
@@ -101,22 +99,22 @@ void onIndexRequest(AsyncWebServerRequest* request) {
   Serial.println("[" + remote_ip.toString() + "] HTTP GET request of " +
                  request->url());
   if (request->url().equals("/"))
-    request->send(SPIFFS, "/index.html", "text/html");
+    request->send(LittleFS, "/index.html", "text/html");
   else if (request->url().equals("/gui.json")) {
     String buffer;
     config.serialize(buffer);
     request->send(200, "application/json", buffer);
-  } else if (SPIFFS.exists(request->url()))
+  } else if (LittleFS.exists(request->url()))
     if (request->url().endsWith(".html")) {
-      request->send(SPIFFS, request->url(), "text/html");
+      request->send(LittleFS, request->url(), "text/html");
     } else if (request->url().endsWith(".css")) {
-      request->send(SPIFFS, request->url(), "text/css");
+      request->send(LittleFS, request->url(), "text/css");
     } else if (request->url().endsWith(".json")) {
-      request->send(SPIFFS, request->url(), "application/json");
+      request->send(LittleFS, request->url(), "application/json");
     } else if (request->url().endsWith(".ico")) {
-      request->send(SPIFFS, request->url(), "image/x-icon");
+      request->send(LittleFS, request->url(), "image/x-icon");
     } else if (request->url().endsWith(".png")) {
-      request->send(SPIFFS, request->url(), "image/png");
+      request->send(LittleFS, request->url(), "image/png");
     } else {
       request->send(404, "text/plain", "Mime-Type Not Found");
     }

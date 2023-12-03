@@ -2,8 +2,8 @@
 #define PLASMA_H
 
 #include "Animation.h"
-#include "Power/Math8.h"
-#include "Power/Noise.h"
+#include "power/Math8.h"
+#include "power/Noise.h"
 /*---------------------------------------------------------------------------------------
  * Noise
  *-------------------------------------------------------------------------------------*/

@@ -75,9 +75,9 @@ void begin(uint32_t frequency) {
     Serial.println("I2S driver installed");
 }
 
-uint16_t loop(int32_t *buffer, uint16_t size_in_bytes) {
+uint16_t loop(int32_t *buffer, uint16_t samples) {
   size_t bytes_read = 0;
-  if (esp_err_t err = i2s_read(I2S_PORT, buffer, size_in_bytes, &bytes_read,
+  if (esp_err_t err = i2s_read(I2S_PORT, buffer, samples << 2, &bytes_read,
                                portMAX_DELAY) != ESP_OK) {
     Serial.printf("ERR %d\n", err);
     return 0;
