@@ -4,6 +4,7 @@
 namespace I2S_MIC {
 
 void begin(uint32_t frequency);
+uint16_t loop(int32_t *buffer, const uint16_t samples);
 uint16_t loop(int16_t *buffer, const uint16_t samples);
 
 }  // namespace I2S_MIC

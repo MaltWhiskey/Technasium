@@ -75,9 +75,19 @@ void begin(uint32_t frequency) {
     Serial.println("I2S driver installed");
 }
 
+uint16_t loop(int32_t *sample_data, const uint16_t samples) {
+  size_t bytes_read = 0;
+  i2s_read(I2S_PORT, sample_data, samples << 1, &bytes_read, portMAX_DELAY);
+  // Convert left 24 bits (left aligned inside 32 bits) to right 24 bits
+  for (uint16_t i = 0; i < bytes_read >> 2; i++) {
+    sample_data[i] >>= 8;
+  }
+  return bytes_read >> 2;
+}
+
 uint16_t loop(int16_t *sample_data, const uint16_t samples) {
   // Memory for audio samples (24 bits per sample stored in signed 32 bit)
-  static int32_t buffer[100];
+  static int32_t buffer[128];
   uint16_t samples_read = 0;
   while (samples_read < samples) {
     size_t bytes_read = 0;
