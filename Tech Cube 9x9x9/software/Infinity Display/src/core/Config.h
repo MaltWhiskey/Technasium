@@ -36,7 +36,7 @@ struct Config {
       char password[64] = "qazwsxedc";
     } wifi;
     struct {
-      char hostname[64] = "InfinityCube";
+      char hostname[64] = "icube";
       uint16_t port = 8080;
     } server;
   } network;
