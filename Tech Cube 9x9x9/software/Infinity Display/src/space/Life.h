@@ -208,8 +208,8 @@ class Life : public Animation {
   }
 
   void draw(float dt) {
-    setMotionBlur(config.animation.life.motionBlur);
-    uint8_t brightness = settings.brightness;
+    setMotionBlur(settings.motionBlur);
+    uint8_t brightness = settings.brightness * getBrightness();
 
     if (timer_running.update()) {
       state = state_t::ENDING;

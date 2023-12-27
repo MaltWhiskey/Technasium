@@ -19,7 +19,7 @@ class Display {
  private:
   // Special display effect for all animations
   static uint8_t motionBlur;
-  static uint8_t brightness;
+  static float brightness;
 
  public:
   // Do not use a class contructor to start the display (Arduino compatibility)
@@ -29,10 +29,10 @@ class Display {
   // Check if the display is available to accept a new frame
   static void clear();
   // Set the motion blur value higher is more blur
-  static void setMotionBlur(const uint8_t value);
+  static void setMotionBlur(const uint8_t);
   static uint8_t getMotionBlur();
   // Set the master display brightness value
-  static void setBrightness(const uint8_t value);
-  static uint8_t getBrightness();
+  static void setBrightness(const float);
+  static float getBrightness();
 };
 #endif

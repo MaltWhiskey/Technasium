@@ -55,7 +55,7 @@ class Twinkels : public Animation {
 
   void draw(float dt) {
     setMotionBlur(settings.motionBlur);
-    uint8_t brightness = settings.brightness;
+    uint8_t brightness = settings.brightness * getBrightness();
     uint16_t pixels_active = 0;
 
     for (uint8_t x = 0; x < Display::width; x++) {

@@ -77,7 +77,7 @@ void begin(uint32_t frequency) {
 
 uint16_t loop(int32_t *sample_data, const uint16_t samples) {
   size_t bytes_read = 0;
-  i2s_read(I2S_PORT, sample_data, samples << 1, &bytes_read, portMAX_DELAY);
+  i2s_read(I2S_PORT, sample_data, samples << 2, &bytes_read, portMAX_DELAY);
   // Convert left 24 bits (left aligned inside 32 bits) to right 24 bits
   for (uint16_t i = 0; i < bytes_read >> 2; i++) {
     sample_data[i] >>= 8;

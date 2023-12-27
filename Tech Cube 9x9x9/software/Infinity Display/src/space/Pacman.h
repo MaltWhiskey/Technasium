@@ -1,11 +1,11 @@
-#ifndef MARIO_H
-#define MARIO_H
+#ifndef PACMAN_H
+#define PACMAN_H
 
 #include "Animation.h"
-#include "gfx/Mario.h"
+#include "gfx/Pacman.h"
 #include "power/Math8.h"
 
-class Mario : public Animation {
+class Pacman : public Animation {
  private:
   float angle;
   float angle_speed;
@@ -17,9 +17,9 @@ class Mario : public Animation {
   Timer timer_interval;
 
   uint8_t frame = 0;
-  uint8_t frame_display[6] = {0, 1, 2, 3, 2, 1};
+  uint8_t frame_display[4] = {0, 1, 2, 1};
 
-  static constexpr auto &settings = config.animation.mario;
+  static constexpr auto &settings = config.animation.pacman;
 
  public:
   void init() {
@@ -38,7 +38,7 @@ class Mario : public Animation {
 
   void draw(float dt) {
     setMotionBlur(settings.motionBlur);
-    uint8_t brightness = settings.brightness;
+    uint8_t brightness = settings.brightness * getBrightness();
 
     float radius = radius_max;
 
@@ -77,9 +77,9 @@ class Mario : public Animation {
     angle += dt * angle_speed;
     arc = 2 * (180 / M_PI) * asinf(0.5f / radius);
 
-    for (uint8_t y = 0; y < 16; y++) {
-      for (uint8_t x = 0; x < 16; x++) {
-        uint32_t data = mario_data[frame_display[frame]][y * 16 + x];
+    for (uint8_t y = 0; y < FRAME_HEIGHT; y++) {
+      for (uint8_t x = 0; x < FRAME_WIDTH; x++) {
+        uint32_t data = pacman_data[frame_display[frame]][y * FRAME_WIDTH + x];
         Color c = Color(0, 0, 0);
         if (data >> 24 & 0xff) {
           c = Color(data & 0xff, data >> 8 & 0xff, data >> 16 & 0xff);
@@ -91,9 +91,9 @@ class Mario : public Animation {
         }
         // Map to coordinates with center (0,0,0) scaled by radius
         // Project on a line at the left of the coordinate system
-        Vector3 point = Vector3(-radius, (7.5f - y) / 7.5f * radius, 0);
+        Vector3 point = Vector3(-radius, (CY - y) / CY * radius, 0);
         Quaternion q = Quaternion(angle - (arc * x), Vector3::Y);
-        radiate(q.rotate(point), c, 1.0f);
+        voxel(q.rotate(point), c);
       }
     }
   }

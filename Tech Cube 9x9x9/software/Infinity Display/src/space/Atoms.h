@@ -34,7 +34,7 @@ class Atoms : public Animation {
 
   void draw(float dt) {
     setMotionBlur(settings.motionBlur);
-    uint8_t brightness = settings.brightness;
+    uint8_t brightness = settings.brightness * getBrightness();
     float radius = radius_max;
 
     if (state == state_t::STARTING) {

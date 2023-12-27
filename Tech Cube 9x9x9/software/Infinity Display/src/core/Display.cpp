@@ -7,7 +7,7 @@
  * DISPLAY CLASS
  *----------------------------------------------------------------------------*/
 uint8_t Display::motionBlur = 240;
-uint8_t Display::brightness = 255;
+float Display::brightness = 1;
 uint32_t Display::cubeBuffer = 0;
 Color Display::cube[2][width][height][depth];
 static CRGB leds[Display::width * Display::height * Display::depth];
@@ -29,9 +29,8 @@ void Display::update() {
       for (uint16_t y = 0; y < Display::height; y++) {
         uint16_t yy = (x & 1) ? Display::height - 1 - y : y;
         uint16_t led = ss ? zz - xx - yy - 1 : xx + yy + zz;
-        Color c = cube[cubeBuffer][x][y][z]
-                      .blend(motionBlur, cube[1 - cubeBuffer][x][y][z])
-                      .scale(brightness);
+        Color c = cube[cubeBuffer][x][y][z].blend(
+            motionBlur, cube[1 - cubeBuffer][x][y][z]);
         leds[led] = CRGB(c.g, c.r, c.b);
       }
     }
@@ -42,8 +41,8 @@ void Display::update() {
 
 void Display::clear() { memset(cube[cubeBuffer], 0, sizeof(cube[0])); }
 // Set the master display brightness value
-void Display::setBrightness(const uint8_t value) { brightness = value; }
-uint8_t Display::getBrightness() { return brightness; }
+void Display::setBrightness(const float value) { brightness = value; }
+float Display::getBrightness() { return brightness; }
 // Set the motion blur value
 void Display::setMotionBlur(const uint8_t value) { motionBlur = value; }
 uint8_t Display::getMotionBlur() { return motionBlur; }

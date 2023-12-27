@@ -30,7 +30,7 @@
  *   #define FASTFLOOR(x) (((int)(x) < (x)) ? ((int)x) : ((int)x - 1))
  *----------------------------------------------------------------------------*/
 
-// Define the center of the physical cube coordinates
+// Define the center of the physical cube coordinates -> 0 1 2 3 [4] 5 6 7 8
 #define CX 4.0f
 #define CY 4.0f
 #define CZ 4.0f
@@ -137,22 +137,27 @@ inline void radiate5(const Vector3 &v0, const Color &c, const float r) {
       }
 }
 
-// Draw a line through the center of the cube with direction n
-inline void line(Vector3 n) {
-  // Get the normal vector n hat.
-  n.normalize();
-  // Multiply by the diagonal corner to corner distance
-  n *= sqrt(CX * CX + CY * CY + CZ * CZ) + 0.001f;
+//  Draw a line through two points using system coordinates
+inline void line(Vector3 a, Vector3 b) {
+  // Get the difference vector.
+  Vector3 n = (a - b);
   // Get the amount of steps needed
-  float steps = max(abs(n.z), max(abs(n.x), abs(n.y)));
+  float steps = 1 + max(abs(n.z), max(abs(n.x), abs(n.y)));
   // Get the increment vector for each dimension
   Vector3 inc = n / steps;
   // The vector is pointing in the direction of Red -> Yellow
   for (uint8_t i = 0; i <= steps; i++) {
-    voxel(inc * +i, Color(+i * 8, RainbowGradientPalette));
-    voxel(inc * -i, Color(-i * 8, RainbowGradientPalette));
+    voxel(a - (inc * i), Color(i * 8, RainbowGradientPalette));
   }
 }
 
-inline void setMotionBlur(uint8_t n) { Display::setMotionBlur(n); }
+// Draw a line through the center of the cube with direction n
+inline void line(Vector3 n) {
+  // Get the normal vector n hat.
+  n.normalize();
+  // Determine center to corner distance
+  const float scalar = sqrt(CX * CX + CY * CY + CZ * CZ);
+  // Draw a line through the center
+  line(n * scalar, n * -scalar);
+}
 #endif

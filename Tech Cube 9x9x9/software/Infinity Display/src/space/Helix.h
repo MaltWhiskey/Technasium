@@ -43,7 +43,7 @@ class Helix : public Animation {
 
   void draw(float dt) {
     setMotionBlur(settings.motionBlur);
-    uint8_t brightness = settings.brightness;
+    uint8_t brightness = settings.brightness * getBrightness();
 
     phase += dt * phase_speed;
     angle += dt * angle_speed;

@@ -19,6 +19,7 @@ class Accelerometer : public Animation {
 
   void draw(float dt) {
     setMotionBlur(settings.motionBlur);
+    uint8_t brightness = settings.brightness * getBrightness();
     if (timer_running.update()) {
       state = state_t::INACTIVE;
     }
@@ -26,7 +27,7 @@ class Accelerometer : public Animation {
       state = state_t::INACTIVE;
     }
 
-    auto &hid = config.hid.accelerometer;
+    auto &hid = config.devices.accelerometer;
     Vector3 v = Vector3(hid.x, hid.z, hid.y);
     if (v.magnitude() > 0)
       v.normalize();

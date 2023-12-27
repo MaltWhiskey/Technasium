@@ -47,7 +47,7 @@ class Plasma : public Animation {
 
   void draw(float dt) {
     setMotionBlur(settings.motionBlur);
-    uint8_t brightness = settings.brightness;
+    uint8_t brightness = settings.brightness * getBrightness();
 
     if (state == state_t::STARTING) {
       if (timer_starting.update()) {

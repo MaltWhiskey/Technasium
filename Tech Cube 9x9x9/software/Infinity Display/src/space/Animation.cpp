@@ -6,7 +6,7 @@
 #include "Fireworks.h"
 #include "Helix.h"
 #include "Life.h"
-#include "Mario.h"
+#include "Pacman.h"
 #include "Plasma.h"
 #include "Pong.h"
 #include "Scroller.h"
@@ -30,7 +30,7 @@ Fireworks fireworks1;
 Fireworks fireworks2;
 Helix helix;
 Life life;
-Mario mario;
+Pacman pacman;
 Plasma plasma;
 Pong pong;
 Scroller scroller;
@@ -41,7 +41,7 @@ Twinkels twinkels;
 
 Animation *Animations[] = {&atoms,      &sinus,    &starfield,    &fireworks1,
                            &fireworks2, &twinkels, &helix,        &arrows,
-                           &plasma,     &mario,    &life,         &pong,
+                           &plasma,     &pacman,   &life,         &pong,
                            &spectrum,   &scroller, &accelerometer};
 
 const uint8_t ANIMATIONS = sizeof(Animations) / sizeof(Animation *);
@@ -116,17 +116,17 @@ void TWINKELS2() { twinkels.set_mode(false, true); }
 
 jump_item_t Animation::get_item(uint16_t index) {
   const jump_item_t jump_table[] = {
+      {"Pacman", "Super Pacman Run", 0, &pacman},
       {"Spectrum", "WiFi Spectrum Analyser", 0, &spectrum},
       {"Scroller", "Circulair text scroller ", &SCROLLER, &scroller},
       {"Pong", "The classical game of Pong", 0, &pong},
-      {"Mario", "Super Mario Run", 0, &mario},
+      {"Pacman", "Super Pacman Run", 0, &pacman},
       {"Accelerometer", "Test accelerometer", 0, &accelerometer},
       {"Arrows", "Moving arrows", 0, &arrows},
       {"Atoms", "Electons arround nucleas", 0, &atoms},
       {"Fireworks", "Fireing Fireworks", &FIREWORKS, &fireworks1},
       {"Helix", "Double strand DNA", 0, &helix},
       {"Life", "Game of Life 3D", 0, &life},
-      {"Mario", "Super Mario Run", 0, &mario},
       {"Plasma", "Perlin noise plasma field", 0, &plasma},
       {"Sinus", "3D Wave Function", 0, &sinus},
       {"Spectrum", "WiFi Spectrum Analyser", 0, &spectrum},

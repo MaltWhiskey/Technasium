@@ -47,6 +47,7 @@ struct Config {
     struct {
       float runtime = 30.0f;
       float radius = 4.0f;
+      uint8_t brightness = 255;
       uint8_t motionBlur = 220;
     } accelerometer;
     struct {
@@ -107,8 +108,8 @@ struct Config {
       float radius = 4.0f;
       float radius_start = 1.0f;
       uint8_t brightness = 200;
-      uint8_t motionBlur = 220;
-    } mario;
+      uint8_t motionBlur = 200;
+    } pacman;
     struct {
       float starttime = 5.0f;
       float runtime = 30.0f;
@@ -120,8 +121,8 @@ struct Config {
       float speed_w = 0.4f;
       float speed_offset_speed = 0.02f;
       int8_t hue_speed = 30;
-      uint8_t motionBlur = 0;
       uint8_t brightness = 255;
+      uint8_t motionBlur = 0;
     } plasma;
     struct {
       float starttime = 2.0f;
@@ -180,23 +181,14 @@ struct Config {
   } animation;
   struct {
     struct {
-      int8_t x = 0;
-      int8_t y = 0;
-      boolean z = false;
-      boolean a = false;
-      boolean b = false;
-      boolean c = false;
-    } button;
-    struct {
       float x = 0;
       float y = 0;
       float z = 0;
     } accelerometer;
     struct {
-      uint8_t data[64];
-      boolean updated = false;
+      volatile float vu[9][9];
     } fft;
-  } hid;
+  } devices;
 
   File open(const char* name, const char* mode) {
     if (!LittleFS.begin()) {

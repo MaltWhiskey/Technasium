@@ -1,5 +1,5 @@
-#ifndef MYWEBSERVER_H
-#define MYWEBSERVER_H
+#ifndef MYSERVER_H
+#define MYSERVER_H
 #include <ESPAsyncWebServer.h>
 #include <WebSocketsServer.h>
 

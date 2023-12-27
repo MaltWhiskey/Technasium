@@ -47,7 +47,7 @@ class Fireworks : public Animation {
 
   void draw(float dt) {
     setMotionBlur(settings.motionBlur);
-    uint8_t brightness = settings.brightness;
+    uint8_t brightness = settings.brightness * getBrightness();
 
     // Missile drawing mode
     if (!exploded) {

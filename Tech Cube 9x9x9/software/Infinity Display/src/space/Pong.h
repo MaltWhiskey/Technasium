@@ -11,13 +11,9 @@ class Pad {
   bool exploded;
 
  public:
-  Pad(Vector3 p = Vector3(0, 0, 0), Vector3 s = Vector3(0, 0, 0),
-      Color c = Color::RED)
-      : position(p), size(s), color(c) {}
-
-  bool move(const float dt, uint8_t scale) {
+  bool move(const float dt, uint8_t brightness) {
     if (!exploded) {  // Exploded pads don't move
-      auto& hid = config.hid.accelerometer;
+      auto& hid = config.devices.accelerometer;
       Vector3 v = Vector3(hid.x, hid.z, hid.y);
       if (v.magnitude() > 0)
         v.normalize();
@@ -46,7 +42,7 @@ class Pad {
       for (float x = min.x; x <= max.x; x++)
         for (float y = min.y; y <= max.y; y++)
           for (float z = min.z; z <= max.z; z++) {
-            radiate(Vector3(x, y, z), color.scaled(scale), 2.0f);
+            radiate(Vector3(x, y, z), color.scaled(brightness), 1.0f);
           }
     } else {  // Draw the debis of the exploded pad
       uint16_t visible = 0;
@@ -72,6 +68,7 @@ class Pad {
   void init() {
     size = Vector3(0.55f, 0.55f, 0.10f);
     position = Vector3(-size.x / 2, -size.y / 2, -1.0);
+    color = Color::RED;
     exploded = false;
   }
 
@@ -118,11 +115,7 @@ class Ball {
   Color color;
 
  public:
-  Ball(Vector3 p = Vector3(0, 0, 0), Vector3 v = Vector3(0, 0, 0),
-       Color c = Color::BLUE)
-      : position(p), velocity(v), color(c) {}
-
-  void move(const float dt, Pad& pad, uint8_t scale, uint8_t hue) {
+  void move(const float dt, Pad& pad, uint8_t brightness, uint8_t hue) {
     Vector3 t = position + velocity * dt;
     if (t.x > 1 || t.x < -1) velocity.x = -velocity.x;
     if (t.y > 1 || t.y < -1) velocity.y = -velocity.y;
@@ -131,7 +124,7 @@ class Ball {
 
     color = Color(hue, RainbowGradientPalette);
     position = position + velocity * dt;
-    radiate5(position * 4.0f, color.scaled(scale), 2.0f);
+    radiate5(position * 4.0f, color.scaled(brightness), 2.0f);
   }
 
   void init() {
@@ -161,7 +154,7 @@ class Pong : public Animation {
 
   void draw(float dt) {
     setMotionBlur(settings.motionBlur);
-    uint8_t brightness = settings.brightness;
+    uint8_t brightness = settings.brightness * getBrightness();
     hue16 += dt * hue16_speed;
 
     if (state == state_t::STARTING) {

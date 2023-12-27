@@ -1,10 +1,8 @@
 #include <stdint.h>
 
-#define MARIO_FRAME_COUNT 4
-#define MARIO_FRAME_WIDTH 16
-#define MARIO_FRAME_HEIGHT 16
-
-/* Piskel data for "Mario16x16" */
+#define FRAME_COUNT 4
+#define FRAME_WIDTH 16
+#define FRAME_HEIGHT 16
 
 PROGMEM const uint32_t mario_data[4][256] = {
     {0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0xff000000,
