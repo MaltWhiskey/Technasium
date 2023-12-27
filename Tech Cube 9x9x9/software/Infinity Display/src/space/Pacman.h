@@ -93,7 +93,7 @@ class Pacman : public Animation {
         // Project on a line at the left of the coordinate system
         Vector3 point = Vector3(-radius, (CY - y) / CY * radius, 0);
         Quaternion q = Quaternion(angle - (arc * x), Vector3::Y);
-        voxel(q.rotate(point), c);
+        radiate(q.rotate(point), c, 1.0f);
       }
     }
   }

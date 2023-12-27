@@ -32,8 +32,10 @@ class Accelerometer : public Animation {
     if (v.magnitude() > 0)
       v.normalize();
     else {
-      line(Vector3(1, 1, 1));
-      line(Vector3(0, 1, -1));
+      // Demo line drawing mode
+      static float phase = 0;
+      phase += dt * 4.0f;
+      line(Vector3(sinf(phase), sinf(phase * 0.5f), sinf(phase * 0.3f)));
       return;
     }
     Quaternion ortho = Quaternion(90, Vector3::Y) * Quaternion(180, Vector3::X);

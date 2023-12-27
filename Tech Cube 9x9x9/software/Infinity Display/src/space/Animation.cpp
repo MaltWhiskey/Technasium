@@ -116,12 +116,11 @@ void TWINKELS2() { twinkels.set_mode(false, true); }
 
 jump_item_t Animation::get_item(uint16_t index) {
   const jump_item_t jump_table[] = {
+      {"Accelerometer", "Test accelerometer", 0, &accelerometer},
       {"Pacman", "Super Pacman Run", 0, &pacman},
       {"Spectrum", "WiFi Spectrum Analyser", 0, &spectrum},
       {"Scroller", "Circulair text scroller ", &SCROLLER, &scroller},
       {"Pong", "The classical game of Pong", 0, &pong},
-      {"Pacman", "Super Pacman Run", 0, &pacman},
-      {"Accelerometer", "Test accelerometer", 0, &accelerometer},
       {"Arrows", "Moving arrows", 0, &arrows},
       {"Atoms", "Electons arround nucleas", 0, &atoms},
       {"Fireworks", "Fireing Fireworks", &FIREWORKS, &fireworks1},
