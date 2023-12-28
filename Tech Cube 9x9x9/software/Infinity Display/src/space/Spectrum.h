@@ -55,9 +55,23 @@ class Spectrum : public Animation {
           Color c = Color(x * 20 + y * 20 + z * 20, LavaPalette);
           Color d = Color((hue16 >> 8) + x * 5 + z * 5, RainbowGradientPalette);
           Color e = Color(25, c, d).scale(brightness);
-          voxel(x, y, z, e);
+          // voxel(x, y, z, e);
         }
       }
+    }
+
+    for (uint8_t y = 0; y < 9; y++) {
+      Color e = Color((hue16 >> 8) + (y * 20), RainbowGradientPalette);
+      uint16_t x = round(fft.vu[0][y] * CX);
+      uint16_t z = round(fft.vu[0][y] * CZ);
+      Vector3 a = Vector3(-x, y - CY, -z);
+      Vector3 b = Vector3(+x, y - CY, -z);
+      Vector3 c = Vector3(+x, y - CY, +z);
+      Vector3 d = Vector3(-x, y - CY, +z);
+      line(a, b, e);
+      line(b, c, e);
+      line(c, d, e);
+      line(d, a, e);
     }
   }
 };

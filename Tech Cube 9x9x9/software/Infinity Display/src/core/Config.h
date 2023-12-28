@@ -59,7 +59,7 @@ struct Config {
       float radius_start = 1.0f;
       float distance = 1.0f;
       int8_t hue_speed = 25;
-      uint8_t brightness = 200;
+      uint8_t brightness = 255;
       uint8_t motionBlur = 220;
     } arrows;
     struct {
@@ -71,7 +71,7 @@ struct Config {
       float radius_start = 1.0f;
       float distance = 2.0f;
       int8_t hue_speed = 25;
-      uint8_t brightness = 200;
+      uint8_t brightness = 255;
       uint8_t motionBlur = 200;
     } atoms;
     struct {
@@ -96,7 +96,7 @@ struct Config {
     struct {
       float runtime = 30.0f;
       float interval = 0.20f;
-      uint8_t brightness = 200;
+      uint8_t brightness = 255;
       uint8_t motionBlur = 0;
     } life;
     struct {
@@ -107,7 +107,7 @@ struct Config {
       float angle_speed = -70.0f;
       float radius = 4.0f;
       float radius_start = 1.0f;
-      uint8_t brightness = 200;
+      uint8_t brightness = 255;
       uint8_t motionBlur = 200;
     } pacman;
     struct {
@@ -129,7 +129,7 @@ struct Config {
       float runtime = 30.0f;
       float endtime = 2.0f;
       int8_t hue_speed = 25;
-      uint8_t brightness = 200;
+      uint8_t brightness = 255;
       uint8_t motionBlur = 200;
     } pong;
     struct {
@@ -138,7 +138,7 @@ struct Config {
       float endtime = 2.0f;
       float rotation_speed = 90.0f;
       float radius = 8.0f;
-      uint8_t brightness = 200;
+      uint8_t brightness = 255;
       uint8_t motionBlur = 0;
     } scroller;
     struct {
@@ -149,7 +149,7 @@ struct Config {
       float resolution = 15;
       float radius = 4.0f;
       int8_t hue_speed = -50;
-      uint8_t brightness = 200;
+      uint8_t brightness = 255;
       uint8_t motionBlur = 0;
     } sinus;
     struct {
@@ -157,8 +157,8 @@ struct Config {
       float runtime = 30.0f;
       float endtime = 5.0f;
       int8_t hue_speed = -25;
-      uint8_t brightness = 200;
-      uint8_t motionBlur = 220;
+      uint8_t brightness = 255;
+      uint8_t motionBlur = 200;
     } spectrum;
     struct {
       float starttime = 3.0f;
@@ -166,7 +166,7 @@ struct Config {
       float endtime = 5.0f;
       float phase_speed = 0.3f;
       int8_t hue_speed = 30;
-      uint8_t brightness = 200;
+      uint8_t brightness = 255;
       uint8_t motionBlur = 230;
       float body_diagonal = 6.5f;
     } starfield;
