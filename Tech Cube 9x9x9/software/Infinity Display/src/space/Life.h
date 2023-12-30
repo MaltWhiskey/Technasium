@@ -237,11 +237,11 @@ class Life : public Animation {
       }
     }
 
-    Color alive = Color(255, 150, 30);
+    Color alive = Color(50, 50, 200);
     Color sparkle = Color(255, 30, 150);
     Color dead = Color::BLACK;
     Color dieing = Color(200, 0, 0);
-    Color birth = Color(0, 200, 10);
+    Color birth = Color(0, 10, 200);
 
     Color colors[6] = {
         Color(scale, alive, sparkle), Color(scale, sparkle, alive),

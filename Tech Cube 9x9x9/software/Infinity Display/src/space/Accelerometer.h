@@ -45,7 +45,7 @@ class Accelerometer : public Animation {
     Vector3 pointer = front.rotate(v);
 
     if (pointer.z < 0) {
-      pointer *= 1 / pointer.z;
+      pointer *= -1 / pointer.z;
       if (pointer.x > 1)
         pointer.x = 1;
       else if (pointer.x < -1)
