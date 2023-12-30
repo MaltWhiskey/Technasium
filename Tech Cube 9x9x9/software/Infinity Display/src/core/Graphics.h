@@ -162,6 +162,18 @@ inline void line(Vector3 a, Vector3 b, Color c) {
   for (uint8_t i = 0; i <= steps; i++) voxel(a - (inc * i), c);
 }
 
+//  Draw a line through two points using system coordinates
+inline void line(Vector3 a, Vector3 b, Color c, const float r) {
+  // Get the difference vector.
+  Vector3 n = (a - b);
+  // Get the amount of steps needed
+  float steps = 1 + max(abs(n.z), max(abs(n.x), abs(n.y)));
+  // Get the increment vector for each dimension
+  Vector3 inc = n / steps;
+  // The vector is pointing in the direction of Red -> Yellow
+  for (uint8_t i = 0; i <= steps; i++) radiate4(a - (inc * i), c, r);
+}
+
 // Draw a line through the center of the cube with direction n
 inline void line(Vector3 n) {
   // Get the normal vector n hat.

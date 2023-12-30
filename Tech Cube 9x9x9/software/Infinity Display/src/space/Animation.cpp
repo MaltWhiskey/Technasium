@@ -3,6 +3,7 @@
 #include "Accelerometer.h"
 #include "Arrows.h"
 #include "Atoms.h"
+#include "Cube.h"
 #include "Fireworks.h"
 #include "Helix.h"
 #include "Life.h"
@@ -38,11 +39,12 @@ Sinus sinus;
 Spectrum spectrum;
 Starfield starfield;
 Twinkels twinkels;
+Cube cube;
 
-Animation *Animations[] = {&atoms,      &sinus,    &starfield,    &fireworks1,
-                           &fireworks2, &twinkels, &helix,        &arrows,
-                           &plasma,     &pacman,   &life,         &pong,
-                           &spectrum,   &scroller, &accelerometer};
+Animation *Animations[] = {&atoms,      &sinus,    &starfield,     &fireworks1,
+                           &fireworks2, &twinkels, &helix,         &arrows,
+                           &plasma,     &pacman,   &life,          &pong,
+                           &spectrum,   &scroller, &accelerometer, &cube};
 
 const uint8_t ANIMATIONS = sizeof(Animations) / sizeof(Animation *);
 /*----------------------------------------------------------------------------*/
@@ -116,7 +118,7 @@ void TWINKELS2() { twinkels.set_mode(false, true); }
 
 jump_item_t Animation::get_item(uint16_t index) {
   const jump_item_t jump_table[] = {
-      {"Spectrum", "WiFi Spectrum Analyser", 0, &spectrum},
+      {"Cube", "Cube in a cube", 0, &cube},
       {"Accelerometer", "Test accelerometer", 0, &accelerometer},
       {"Arrows", "Moving arrows", 0, &arrows},
       {"Atoms", "Electons arround nucleas", 0, &atoms},

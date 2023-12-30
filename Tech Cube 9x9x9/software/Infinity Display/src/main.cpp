@@ -84,14 +84,16 @@ void web_fft_task(void *parameter) {
   Serial.printf("Webserver running on core %d\n", xPortGetCoreID());
   const uint16_t SAMPLES = 1024;
   const uint32_t SAMPLING_FREQ = 44100;
-
-  uint32_t bands[10] = {1, 2, 4, 8, 16, 32, 64, 128, 180, 240};
-  const uint16_t BANDS = sizeof(bands) / sizeof(bands[0]) - 1;
-
-  int32_t samples[SAMPLES];
-  I2S_MIC::begin(SAMPLING_FREQ);
+  const uint16_t BANDS = 9;
+  float level[BANDS];
   float vReal[SAMPLES];
   float vImag[SAMPLES];
+  int32_t samples[SAMPLES];
+  const uint32_t bands[BANDS][2] = {{1, 3},   {4, 5},    {6, 9},
+                                    {10, 16}, {17, 29},  {30, 54},
+                                    {55, 98}, {99, 180}, {181, 512}};
+
+  I2S_MIC::begin(SAMPLING_FREQ);
   ArduinoFFT<float> FFT =
       ArduinoFFT<float>(vReal, vImag, SAMPLES, SAMPLING_FREQ);
 
@@ -102,30 +104,34 @@ void web_fft_task(void *parameter) {
     WebServer::update();
     // Process microphone samples
     uint16_t samples_read = I2S_MIC::loop(samples, SAMPLES);
-    // Analyze audio
     for (uint16_t i = 0; i < SAMPLES; i++) {
       vReal[i] = (float)samples[i];
       vImag[i] = 0;
     }
+    // Analyze audio
     FFT.dcRemoval();
     FFT.windowing(FFTWindow::Hamming, FFTDirection::Forward);
     FFT.compute(FFTDirection::Forward);
     FFT.complexToMagnitude();
-
-    float max = 0;
-    for (uint16_t i = 0; i < SAMPLES / 2; i++) {
-      if (vReal[i] > max) max = vReal[i];
+    // Keep max level for each frequency bin
+    memset(level, 0, sizeof(level));
+    for (uint16_t b = 0; b < BANDS; b++)
+      for (uint16_t i = bands[b][0]; i <= bands[b][1]; i++)
+        level[b] = max(vReal[i], level[b]);
+    // Determine max level of each frequency bin
+    float max_level = 1;
+    for (uint16_t b = 0; b < BANDS; b++) {
+      max_level = max(max_level, level[b]);
     }
-    for (uint16_t i = 0; i < SAMPLES / 2; i++) {
-      vReal[i] /= max;
-    }
-    for (uint32_t i = 0; i < 9; i++)
-      for (uint32_t j = 0; j < 9; j++) {
-        if (config.devices.fft.vu[i][j] > vReal[i * 9 + j + 3]) {
-          config.devices.fft.vu[i][j] *= 0.85f;
-        } else {
-          config.devices.fft.vu[i][j] = vReal[i * 9 + j + 3];
-        }
+    // Make all bins relative to max level
+    for (uint16_t b = 0; b < BANDS; b++) {
+      level[b] /= max_level;
+      level[b] = level[b] * level[b] * level[b];
+      if (config.devices.fft.level[b] > level[b]) {
+        config.devices.fft.level[b] *= 0.96f;
+      } else {
+        config.devices.fft.level[b] = level[b];
       }
+    }
   }
 }

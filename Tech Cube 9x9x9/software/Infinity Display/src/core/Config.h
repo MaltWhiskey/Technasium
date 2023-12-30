@@ -75,6 +75,17 @@ struct Config {
       uint8_t motionBlur = 200;
     } atoms;
     struct {
+      float starttime = 5.0f;
+      float runtime = 30.0f;
+      float endtime = 5.0f;
+      float angle_speed = 160.0f;
+      float radius = 3.0f;
+      float radius_start = 1.0f;
+      int8_t hue_speed = -50;
+      uint8_t brightness = 255;
+      uint8_t motionBlur = 0;
+    } cube;
+    struct {
       float runtime = 30.0f;
       float radius = 4.0f;
       uint8_t brightness = 255;
@@ -158,7 +169,7 @@ struct Config {
       float endtime = 5.0f;
       int8_t hue_speed = -25;
       uint8_t brightness = 255;
-      uint8_t motionBlur = 200;
+      uint8_t motionBlur = 230;
     } spectrum;
     struct {
       float starttime = 3.0f;
@@ -186,7 +197,7 @@ struct Config {
       float z = 0;
     } accelerometer;
     struct {
-      volatile float vu[9][9];
+      volatile float level[9];
     } fft;
   } devices;
 

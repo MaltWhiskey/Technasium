@@ -12,7 +12,6 @@ class Atoms : public Animation {
   float distance;
   float radius_start;
   float radius_max;
-  float arc;
 
   static constexpr auto &settings = config.animation.atoms;
 
@@ -67,7 +66,6 @@ class Atoms : public Animation {
 
     angle += dt * angle_speed;
     hue16 += dt * hue16_speed;
-    arc = 2 * (180 / M_PI) * asinf(0.5f / radius);
 
     float a = angle * 1.0f;
     float t = angle * 0.1f;
