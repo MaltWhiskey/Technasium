@@ -91,7 +91,6 @@ void begin() {
           type = "sketch";
         else
           type = "filesystem";
-        // vTaskSuspend(Task);
         Serial.println("Start updating " + type);
       })
       .onEnd([]() { Serial.println("\nEnd"); })
@@ -116,8 +115,6 @@ void begin() {
 
 // Handle network traffic
 void update() {
-  // Handle WebSocket data
-  webSocket.loop();
   if (AP_MODE) {
     // Handle dns requests in Access Point Mode only
     dnsServer.processNextRequest();
@@ -125,6 +122,10 @@ void update() {
     // Handle reconnects only when connected to Lan
     begin();
   }
+  // Handle WebSocket data
+  webSocket.loop();
+  // Handle OTA update
+  ArduinoOTA.handle();
 }
 
 void onIndexRequest(AsyncWebServerRequest* request) {

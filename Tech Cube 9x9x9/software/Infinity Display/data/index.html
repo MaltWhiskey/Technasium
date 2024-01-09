@@ -2,49 +2,14 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dot Matrix Lava Lamp</title>
+    <title>Infinity Cube</title>
     <link rel="stylesheet" type="text/css" href="style.css" />
-    <script src="https://code.highcharts.com/highcharts.js"></script>
   </head>
   <body>
     <div id="header"></div>
     <div id="gui"></div>
     <div id="footer"></div>
-    <div id="chart-temperature" class="container"></div>
   </body>
-  <script>
-  var chartT = new Highcharts.Chart({
-    chart:{ renderTo : 'chart-temperature' },
-    title: { text: 'Lava Lamp Temperature' },
-    series: [{
-      showInLegend: false,
-      data: []
-    }],
-    plotOptions: {
-      series: {
-        dataLabels: {
-          enabled: false
-        }
-      }
-    },
-    xAxis: { type: 'datetime',
-      dateTimeLabelFormats: { second: '%H:%M:%S' },
-    },
-    yAxis: {
-      title: { text: 'Temperature (Celsius)' },
-      lineWidth: 1
-    },
-    credits: { enabled: false },
-  });
-  function addTemperature(temp, size) {
-    let x = (new Date()).getTime();
-    let y = Math.round(temp * 100) / 100;
-    while (chartT.series[0].data.length > size) {
-      chartT.series[0].removePoint(0, false);
-    }
-    chartT.series[0].addPoint([x, y], true, chartT.series[0].data.length > size, false);
-  }
-</script>
   <script>
     // Global config holds gui.json configuration object
     var config = null;
