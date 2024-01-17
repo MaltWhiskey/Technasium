@@ -160,30 +160,35 @@
       let protocol =
         window.location.protocol === "https:" ? "wss://" : "ws://";
       let location = window.location.host + ":1337";
-      websocket = new WebSocket(protocol + location);
-      websocket.onopen = function (evt) {
-        console.log("Opend: " + evt);
-      };
-      websocket.onclose = function (evt) {
-        console.log("Closed: " + evt);
-        // if websocket is closed immediately make a new connection
-        wsConnect();
-      };
-      websocket.onmessage = function (evt) {
-        console.log("Received: " + evt.data);
-        let obj = JSON.parse(evt.data);
-        if(obj.command == "AddTemperature") {
-          addTemperature(obj.temp, obj.size);
-        }
-      };
-      websocket.onerror = function (evt) {
-        console.log("Error: " + evt);
-      };
+      try {
+        websocket = new WebSocket(protocol + location);
+        websocket.onopen = function (evt) {
+          console.log("Opend: " + evt);
+        };
+        websocket.onclose = function (evt) {
+          console.log("Closed: " + evt);
+          // if websocket is closed immediately make a new connection
+          wsConnect();
+        };
+        websocket.onmessage = function (evt) {
+          console.log("Received: " + evt.data);
+          let obj = JSON.parse(evt.data);
+          if(obj.command == "AddTemperature") {
+            addTemperature(obj.temp, obj.size);
+          }
+        };
+        websocket.onerror = function (evt) {
+          console.log("ERROR: " + evt);
+        };
+      }
+      catch(e) {
+        console.log("ERROR: " + e);
+      }
     }
 
     // WebSocket communications
     function executeCommand(command) {
-      if (websocket.readyState == WebSocket.OPEN) {
+      if (websocket && websocket.readyState == WebSocket.OPEN) {
         websocket.send(command);
       }
       console.log(command);
