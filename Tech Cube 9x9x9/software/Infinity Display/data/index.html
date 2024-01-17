@@ -23,7 +23,7 @@
     // Creates a slider with an id, some values and update method
     function createSlider(val, key, lbl) {
       return `<input type="range" min=${val.min} max=${val.max}
-                  value=${val.value} class="slider" step=${val.step}
+                  value=${val.value} step=${val.step}
                   id=${key} oninput="update('${key}', value, '${lbl}')"/>`;
     }
 
@@ -33,34 +33,34 @@
                   <input id=${key} type="checkbox"
                   ${val.value ? "checked" : ""}
                   oninput="update('${key}', ${key}.checked)"/>
-                  <span class="switch-slider"></span></label><br>`;
+                  <span class="switch-slider"></span></label>`;
     }
 
     // Creates an input with an id, value and update method
     function createInput(val, key) {
       return `<input type="text" id=${key}
                   oninput="update('${key}', value)"
-                  value="${val.value}"><br>`;
+                  value="${val.value}">`;
     }
 
     // Create an element of specific type
     function createType(val, key) {
-      let gui = "";
+      let gui = '<div class="input">';
       if (val.type == "slider") {
         // create a label for the name of the property
         gui += createLabel(val.name) + " ";
         // create a label for the value with id = l+id
-        gui += createLabel(val.value, "l" + key) + "<br>";
+        gui += createLabel(val.value, "l" + key);
         // create the slider
         gui += createSlider(val, key, "l" + key);
       } else if (val.type == "checkbox") {
-        gui += createLabel(val.name) + "<br>";
+        gui += createLabel(val.name);
         gui += createSwitch(val, key);
       } else if (val.type == "text") {
         gui += createLabel(val.name);
         gui += createInput(val, key);
       }
-      return gui;
+      return gui + '</div>';
     }
 
     // Create the selector at the top of the screen
