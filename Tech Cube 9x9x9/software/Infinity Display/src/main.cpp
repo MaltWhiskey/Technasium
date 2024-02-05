@@ -1,5 +1,3 @@
-
-#define BAND_SIZE 8
 #include <Arduino.h>
 #include <AsyncUDP.h>
 
