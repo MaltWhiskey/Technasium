@@ -41,12 +41,12 @@ Starfield starfield;
 Twinkels twinkels;
 Cube cube;
 
-Animation *Animations[] = {&atoms,      &sinus,    &starfield,     &fireworks1,
+Animation* Animations[] = { &atoms,      &sinus,    &starfield,     &fireworks1,
                            &fireworks2, &twinkels, &helix,         &arrows,
                            &plasma,     &pacman,   &life,          &pong,
-                           &spectrum,   &scroller, &accelerometer, &cube};
+                           &spectrum,   &scroller, &accelerometer, &cube };
 
-const uint8_t ANIMATIONS = sizeof(Animations) / sizeof(Animation *);
+const uint8_t ANIMATIONS = sizeof(Animations) / sizeof(Animation*);
 /*----------------------------------------------------------------------------*/
 // Start display asap to minimize PL9823 blue startup
 void Animation::begin() { Display::begin(); }
@@ -62,7 +62,7 @@ void Animation::loop() {
     // Draw all active animations from the animation pool
     uint8_t active_animation_count = 0;
     for (uint8_t i = 0; i < ANIMATIONS; i++) {
-      Animation &animation = *Animations[i];
+      Animation& animation = *Animations[i];
       if (animation.state != state_t::INACTIVE) {
         animation.draw(animation_timer.dt());
       }
@@ -87,9 +87,11 @@ void Animation::loop() {
 void Animation::end() {
   if (state == state_t::STARTING) {
     timer_ending = Timer(2.0f, timer_starting.ratio(), true);
-  } else if (state == state_t::RUNNING) {
+  }
+  else if (state == state_t::RUNNING) {
     timer_ending = 2.0f;
-  } else if (state == state_t::ENDING && !time_reduction) {
+  }
+  else if (state == state_t::ENDING && !time_reduction) {
     timer_ending = Timer(2.0f, timer_ending.ratio(), false);
   }
   state = state_t::ENDING;
@@ -118,10 +120,10 @@ void TWINKELS2() { twinkels.set_mode(false, true); }
 
 jump_item_t Animation::get_item(uint16_t index) {
   const jump_item_t jump_table[] = {
-      {"Cube", "Cube in a cube", 0, &cube},
       {"Accelerometer", "Test accelerometer", 0, &accelerometer},
       {"Arrows", "Moving arrows", 0, &arrows},
       {"Atoms", "Electons arround nucleas", 0, &atoms},
+      {"Cube", "Cube in a cube", 0, &cube},
       {"Fireworks", "Fireing Fireworks", &FIREWORKS, &fireworks1},
       {"Helix", "Double strand DNA", 0, &helix},
       {"Life", "Game of Life 3D", 0, &life},
@@ -134,7 +136,7 @@ jump_item_t Animation::get_item(uint16_t index) {
       {"Starfield", "To boldly go...", 0, &starfield},
       {"Fairylights", "Beautifull fairylights", &TWINKELS1, &twinkels},
       {"Multilights", "Multicolor fairylights", &TWINKELS2, &twinkels},
-      {0, 0, 0, 0}};
+      {0, 0, 0, 0} };
   const uint16_t JUMPITEMS = sizeof(jump_table) / sizeof(jump_item_t) - 1;
   if (index > JUMPITEMS)
     return jump_table[JUMPITEMS];
@@ -152,7 +154,8 @@ void Animation::next(bool play_one, uint16_t index) {
       jump.object->timer_running = 0;
     }
     if (jump.custom_init) jump.custom_init();
-  } else {
+  }
+  else {
     // Play the next animation from the sequence
     jump_item_t jump = get_item(animation_sequence++);
     if (!jump.object) {

@@ -11,12 +11,13 @@
 /*------------------------------------------------------------------------------
  * Globals
  *----------------------------------------------------------------------------*/
-// Global configuration parameters
+ // Global configuration parameters
 Config config;
 // TaskHandle for running task on different core
-TaskHandle_t Task;
-void web_fft_task(void *);
-void wav_rec_task(void *);
+TaskHandle_t FFT_Task, WAV_Task, WEB_Task;
+void fft_task(void*);
+void wav_task(void*);
+void web_task(void*);
 /*------------------------------------------------------------------------------
  * Initialize setup parameters
  *----------------------------------------------------------------------------*/
@@ -30,14 +31,16 @@ void setup() {
   Animation::begin();
   // Initialize web server communication
   WebServer::begin();
-  // Create task1 on core 0
-  xTaskCreatePinnedToCore(web_fft_task, "TASK", 50000, NULL, 10, &Task, 0);
+  // Create task on core 0
+  xTaskCreatePinnedToCore(fft_task, "FFT", 30000, NULL, 1, &FFT_Task, 0);
+  // Create task on core 0
+  xTaskCreatePinnedToCore(web_task, "WEB", 10000, NULL, 8, &WEB_Task, 0);
 }
 /*------------------------------------------------------------------------------
  * Task Core 1 -> Animation
  *----------------------------------------------------------------------------*/
 void loop() {
-  Serial.printf("Animation running on core %d\n", xPortGetCoreID());
+  Serial.printf("Animations running on core %d\n", xPortGetCoreID());
   static Timer print_interval = 1.0f;
   while (true) {
     // Run animation rountines and update the display
@@ -49,11 +52,23 @@ void loop() {
   }
 }
 /*------------------------------------------------------------------------------
+ * Webserver
+ *----------------------------------------------------------------------------*/
+void web_task(void* parameter) {
+  Serial.printf("Webserver running on core %d\n", xPortGetCoreID());
+  while (true) {
+    // Prevents watchdog timeout
+    vTaskDelay(1);
+    // Check for Web server events
+    WebServer::update();
+  }
+}
+/*------------------------------------------------------------------------------
  * Audio Recorder
  * Import in Audacity as raw signed 32 bits, 3 bytes shift
  *----------------------------------------------------------------------------*/
-void wav_rec_task(void *parameter) {
-  Serial.printf("Audio recorder running on core %d\n", xPortGetCoreID());
+void wav_task(void* parameter) {
+  Serial.printf("Audio Recorder running on core %d\n", xPortGetCoreID());
   const uint16_t SAMPLES = 256;
   const uint32_t SAMPLING_FREQ = 44100;
   int32_t samples[SAMPLES];
@@ -74,14 +89,14 @@ void wav_rec_task(void *parameter) {
     // Process microphone samples
     uint16_t samples_read = I2S_MIC::loop(samples, SAMPLES);
     // Log to UPD socket (keep packet size 1024 same as python script)
-    udp.write((uint8_t *)samples, 1024);
+    udp.write((uint8_t*)samples, 1024);
   }
 }
 /*------------------------------------------------------------------------------
- * Webserver, Audio Analyzer
+ * Audio Analyzer
  *----------------------------------------------------------------------------*/
-void web_fft_task(void *parameter) {
-  Serial.printf("Webserver running on core %d\n", xPortGetCoreID());
+void fft_task(void* parameter) {
+  Serial.printf("Audio Analyzer running on core %d\n", xPortGetCoreID());
   const uint16_t SAMPLES = 1024;
   const uint32_t SAMPLING_FREQ = 44100;
   const uint16_t BANDS = 9;
@@ -89,19 +104,17 @@ void web_fft_task(void *parameter) {
   float vReal[SAMPLES];
   float vImag[SAMPLES];
   int32_t samples[SAMPLES];
-  const uint32_t bands[BANDS][2] = {{1, 3},   {4, 5},    {6, 9},
+  const uint32_t bands[BANDS][2] = { {1, 3},   {4, 5},    {6, 9},
                                     {10, 16}, {17, 29},  {30, 54},
-                                    {55, 98}, {99, 180}, {181, 512}};
+                                    {55, 98}, {99, 180}, {181, 512} };
 
   I2S_MIC::begin(SAMPLING_FREQ);
   ArduinoFFT<float> FFT =
-      ArduinoFFT<float>(vReal, vImag, SAMPLES, SAMPLING_FREQ);
+    ArduinoFFT<float>(vReal, vImag, SAMPLES, SAMPLING_FREQ);
 
   while (true) {
     // Prevents watchdog timeout
     vTaskDelay(1);
-    // Check for Web server events
-    WebServer::update();
     // Process microphone samples
     uint16_t samples_read = I2S_MIC::loop(samples, SAMPLES);
     for (uint16_t i = 0; i < SAMPLES; i++) {
@@ -110,9 +123,13 @@ void web_fft_task(void *parameter) {
     }
     // Analyze audio
     FFT.dcRemoval();
+    taskYIELD();
     FFT.windowing(FFTWindow::Hamming, FFTDirection::Forward);
+    taskYIELD();
     FFT.compute(FFTDirection::Forward);
+    taskYIELD();
     FFT.complexToMagnitude();
+    taskYIELD();
     // Keep max level for each frequency bin
     memset(level, 0, sizeof(level));
     for (uint16_t b = 0; b < BANDS; b++)
@@ -129,7 +146,8 @@ void web_fft_task(void *parameter) {
       level[b] = level[b] * level[b] * level[b];
       if (config.devices.fft.level[b] > level[b]) {
         config.devices.fft.level[b] *= 0.96f;
-      } else {
+      }
+      else {
         config.devices.fft.level[b] = level[b];
       }
     }

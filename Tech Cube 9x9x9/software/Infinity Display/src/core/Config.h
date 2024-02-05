@@ -4,6 +4,7 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 #include <stdint.h>
+#include <string>
 
 // Json document size to hold the commands send between client/server
 #define COMMAND_DOC_SIZE 255
@@ -233,9 +234,83 @@ struct Config {
     }
   }
 
+  void slider(JsonObject& node, const char* id, const char* name, float value,
+    float min = 0, float max = 255, float step = 1) {
+    JsonObject leaf = node.createNestedObject(id);
+    leaf["name"] = name;
+    leaf["type"] = "slider";
+    leaf["value"] = value;
+    leaf["min"] = min;
+    leaf["max"] = max;
+    leaf["step"] = step;
+  }
+
+  void checkbox(JsonObject& node, const char* id, const char* name,
+    boolean value) {
+    JsonObject leaf = node.createNestedObject(id);
+    leaf["name"] = name;
+    leaf["type"] = "checkbox";
+    leaf["value"] = value;
+  }
+
+  void text(JsonObject& node, const char* id, const char* name,
+    const char* value, uint8_t size) {
+    JsonObject leaf = node.createNestedObject(id);
+    leaf["name"] = name;
+    leaf["type"] = "text";
+    leaf["value"] = value;
+    leaf["size"] = size;
+  }
+
   void serialize(String& buffer) {
     DynamicJsonDocument doc(CONFIG_DOC_SIZE);
-    // JsonObject settings = doc.createNestedObject("settings");
+    JsonObject settings = doc.createNestedObject("settings");
+    settings["name"] = "Configuration Settings";
+    JsonObject animations = doc.createNestedObject("animations");
+    animations["name"] = "Animation Settings";
+    JsonObject obj;
+    { // SETTINGS.DISPLAY
+      obj = settings.createNestedObject("display");
+      obj["name"] = "Display Settings";
+      slider(obj, "max_milliamps", "Max mAmps", power.max_milliamps, 0, 20000, 100);
+      checkbox(obj, "play_one", "Cycle Animations", !animation.play_one);
+    }
+    { // SETTINGS.NETWORK
+      obj = settings.createNestedObject("network");
+      obj["name"] = "Network Settings";
+      text(obj, "ssid", "Network SSID", network.wifi.ssid, 32);
+      text(obj, "password", "Password", network.wifi.password, 64);
+      text(obj, "hostname", "Hostname", network.server.hostname, 64);
+      text(obj, "port", "Port", std::to_string(network.server.port).c_str(), 6);
+    }
+    { // ANIMATIONS.ACCELEROMETER
+      obj = animations.createNestedObject("accelerometer");
+      auto& cfg = animation.accelerometer;
+      obj["name"] = "Accelerometer";
+      obj["index"] = 0;
+      slider(obj, "runtime", "Runtime", cfg.runtime);
+      slider(obj, "radius", "Radius", cfg.radius, 0.0f, 16.0f, 0.25f);
+      slider(obj, "brightness", "Brightness", cfg.brightness);
+      slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
+    }
+    { // ANIMATIONS.ARROWS
+      obj = animations.createNestedObject("arrows");
+      auto& cfg = animation.arrows;
+      obj["name"] = "Arrows";
+      obj["index"] = 1;
+      slider(obj, "starttime", "Starttime", cfg.starttime);
+      slider(obj, "runtime", "Runtime", cfg.runtime);
+      slider(obj, "endtime", "Endtime", cfg.endtime);
+      slider(obj, "angle_speed", "Angle Speed", cfg.angle_speed, -180, 180, 1);
+      slider(obj, "radius", "Radius", cfg.radius, 0.0f, 16.0f, 0.25f);
+      slider(obj, "radius_start", "Radius Start", cfg.radius_start, 0.0f, 16.0f, 0.25f);
+      slider(obj, "distance", "Distance", cfg.distance, 0.0f, 16.0f, 0.25f);
+      slider(obj, "hue_speed", "Hue Speed", cfg.hue_speed);
+      slider(obj, "brightness", "Brightness", cfg.brightness);
+      slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
+    }
+    // SERIALIZED CONFIG
+    serializeJson(doc, buffer);
   };
 
   void deserialize(String buffer) {
@@ -246,21 +321,23 @@ struct Config {
       return;
     }
 
+    // POWER
     power.max_milliamps =
-        doc["power"]["max_milliamps"]["value"] | power.max_milliamps;
-
+      doc["power"]["max_milliamps"]["value"] | power.max_milliamps;
+    // NETWORK.WIFI
     strlcpy(network.wifi.ssid,
-            doc["network"]["wifi"]["ssid"]["value"] | network.wifi.ssid,
-            sizeof(network.wifi.ssid));
+      doc["network"]["wifi"]["ssid"]["value"] | network.wifi.ssid,
+      sizeof(network.wifi.ssid));
     strlcpy(network.wifi.password,
-            doc["network"]["wifi"]["password"]["value"] | network.wifi.password,
-            sizeof(network.wifi.password));
+      doc["network"]["wifi"]["password"]["value"] | network.wifi.password,
+      sizeof(network.wifi.password));
+    // NETWORK.SERVER
     strlcpy(
-        network.server.hostname,
-        doc["network"]["server"]["hostname"]["value"] | network.server.hostname,
-        sizeof(network.server.hostname));
+      network.server.hostname,
+      doc["network"]["server"]["hostname"]["value"] | network.server.hostname,
+      sizeof(network.server.hostname));
     network.server.port =
-        doc["network"]["server"]["port"]["value"] | network.server.port;
+      doc["network"]["server"]["port"]["value"] | network.server.port;
   }
 
   void execute(uint8_t* char_buffer) {
@@ -278,12 +355,14 @@ struct Config {
       animation.changed = true;
       animation.play_one = true;
       animation.animation = doc["target"] | animation.animation;
-    } else if (event.equals("update")) {
+    }
+    else if (event.equals("update")) {
       String string_buffer;
       doc.remove("event");
       serializeJson(doc, string_buffer);
       deserialize(string_buffer);
-    } else if (event.equals("save")) {
+    }
+    else if (event.equals("save")) {
       save();
     }
   }
