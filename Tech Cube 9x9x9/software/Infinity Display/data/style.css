@@ -36,6 +36,7 @@ label {
 
 select,
 input[type="text"],
+input[type="number"],
 input[type="submit"]
 {
   margin: 0px;
@@ -64,6 +65,7 @@ select option
 
 select:hover,
 input[type="text"]:hover,
+input[type="number"]:hover,
 input[type="submit"]:hover
 {
   border: 2px solid #fff;

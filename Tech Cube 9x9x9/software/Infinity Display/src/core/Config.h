@@ -262,6 +262,17 @@ struct Config {
     leaf["size"] = size;
   }
 
+  void number(JsonObject& node, const char* id, const char* name, float value,
+    float min = 0, float max = 255, float step = 1) {
+    JsonObject leaf = node.createNestedObject(id);
+    leaf["name"] = name;
+    leaf["type"] = "number";
+    leaf["value"] = value;
+    leaf["min"] = min;
+    leaf["max"] = max;
+    leaf["step"] = step;
+  }
+
   void serialize(String& buffer) {
     DynamicJsonDocument doc(CONFIG_DOC_SIZE);
     JsonObject settings = doc.createNestedObject("settings");
@@ -281,7 +292,7 @@ struct Config {
       text(obj, "ssid", "Network SSID", network.wifi.ssid, 32);
       text(obj, "password", "Password", network.wifi.password, 64);
       text(obj, "hostname", "Hostname", network.server.hostname, 64);
-      text(obj, "port", "Port", std::to_string(network.server.port).c_str(), 6);
+      number(obj, "port", "Port", network.server.port, 0x0000, 0xffff, 1);
     }
     { // ANIMATIONS.ACCELEROMETER
       obj = animations.createNestedObject("accelerometer");
@@ -320,24 +331,30 @@ struct Config {
       Serial.printf("Deserialization error: %s\n", err.c_str());
       return;
     }
-
-    // POWER
-    power.max_milliamps =
-      doc["power"]["max_milliamps"]["value"] | power.max_milliamps;
-    // NETWORK.WIFI
-    strlcpy(network.wifi.ssid,
-      doc["network"]["wifi"]["ssid"]["value"] | network.wifi.ssid,
-      sizeof(network.wifi.ssid));
-    strlcpy(network.wifi.password,
-      doc["network"]["wifi"]["password"]["value"] | network.wifi.password,
-      sizeof(network.wifi.password));
-    // NETWORK.SERVER
-    strlcpy(
-      network.server.hostname,
-      doc["network"]["server"]["hostname"]["value"] | network.server.hostname,
-      sizeof(network.server.hostname));
-    network.server.port =
-      doc["network"]["server"]["port"]["value"] | network.server.port;
+    { // SETTINGS.DISPLAY
+      JsonObject obj = doc["settings"]["display"];
+      power.max_milliamps =
+        obj["max_milliamps"]["value"] | power.max_milliamps;
+      if (obj["play_one"]) {
+        animation.play_one = !obj["play_one"]["value"];
+        animation.changed = true;
+      }
+    }
+    { // SETTINGS.NETWORK
+      JsonObject obj = doc["settings"]["network"];
+      strlcpy(network.wifi.ssid,
+        obj["ssid"]["value"] | network.wifi.ssid,
+        sizeof(network.wifi.ssid));
+      strlcpy(network.wifi.password,
+        obj["password"]["value"] | network.wifi.password,
+        sizeof(network.wifi.password));
+      strlcpy(
+        network.server.hostname,
+        obj["hostname"]["value"] | network.server.hostname,
+        sizeof(network.server.hostname));
+      network.server.port =
+        obj["port"]["value"] | network.server.port;
+    }
   }
 
   void execute(uint8_t* char_buffer) {

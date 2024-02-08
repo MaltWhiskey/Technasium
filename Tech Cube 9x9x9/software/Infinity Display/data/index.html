@@ -26,6 +26,12 @@
                   value=${val.value} step=${val.step}
                   id=${key} oninput="update('${key}', value, '${lbl}')"/>`;
     }
+    // Creates a number with an id, some values and update method
+    function createNumber(val, key) {
+      return `<input type="number" min=${val.min} max=${val.max}
+                  value=${val.value} step=${val.step}
+                  id=${key} oninput="update('${key}', value)"/>`;
+    }
 
     // Creates a switch with an id, checked status and update method
     function createSwitch(val, key) {
@@ -53,6 +59,9 @@
         gui += createLabel(val.value, "l" + key);
         // create the slider
         gui += createSlider(val, key, "l" + key);
+      } else if (val.type == "number") {
+        gui += createLabel(val.name);
+        gui += createNumber(val, key);
       } else if (val.type == "checkbox") {
         gui += createLabel(val.name);
         gui += createSwitch(val, key);
