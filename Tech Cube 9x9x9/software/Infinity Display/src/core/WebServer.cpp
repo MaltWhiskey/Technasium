@@ -18,7 +18,6 @@
 #define DNSSERVER_PORT 53
 
 namespace WebServer {
-
   AsyncWebServer server = AsyncWebServer(WEBSERVER_PORT);
   WebSocketsServer webSocket = WebSocketsServer(WEBSOCKET_PORT);
   IPAddress APIP = IPAddress(ACCESSPOINT_IP);
@@ -34,13 +33,13 @@ namespace WebServer {
     Serial.print("Starting WiFi");
     WiFi.begin(config.network.wifi.ssid, config.network.wifi.password);
     AP_MODE = true;
-    for (uint8_t i = 0; i < 70; i++) {
+    for (uint8_t i = 0; i < 100; i++) {
       if (WiFi.status() == WL_CONNECTED) {
         AP_MODE = false;
         break;
       }
       Serial.print(".");
-      delay(100);
+      delay(500);
     }
     Serial.println();
 
@@ -177,6 +176,10 @@ namespace WebServer {
     } break;
       // Text received from a connected client
     case WStype_TEXT: {
+      for (uint8_t i = 0; i < WEBSOCKETS_SERVER_CLIENT_MAX; i++) {
+        if (i != client_num)
+          webSocket.sendTXT(i, payload, length);
+      }
       config.execute(payload);
     } break;
     case WStype_BIN:
@@ -190,5 +193,4 @@ namespace WebServer {
       break;
     }
   }
-
 }  // namespace WebServer

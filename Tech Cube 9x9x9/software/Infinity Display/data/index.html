@@ -15,6 +15,8 @@
     var config = null;
     // Global websocket holds connection to the server
     var websocket = null;
+    // Global timeout id for preventing multiple timers
+    var timeoutid = null;
 
     // Creates a label with or without an id and some content
     function createLabel(text, key) {
@@ -181,9 +183,21 @@
         };
         websocket.onmessage = function (evt) {
           console.log("Received: " + evt.data);
-          let obj = JSON.parse(evt.data);
-          if(obj.command == "AddTemperature") {
-            addTemperature(obj.temp, obj.size);
+          let obj = JSON.parse(evt.data);          
+          if(obj.event == "update") {
+            delete obj.event;
+            let key1 = Object.keys(obj)[0];
+            let val1 = Object.values(obj)[0];
+            let key2 = Object.keys(val1)[0];
+            let val2 = Object.values(val1)[0];
+            let key3 = Object.keys(val2)[0];
+            let val3 = Object.values(val2)[0];
+            let key4 = Object.keys(val3)[0];
+            let val4 = Object.values(val3)[0];
+            if(config[key1][key2][key3][key4] != val4) {
+              config[key1][key2][key3][key4] = val4;
+              createGui();
+            }
           }
         };
         websocket.onerror = function (evt) {

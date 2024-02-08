@@ -387,3 +387,13 @@ struct Config {
 // All cpp files that include this link to a single config struct
 extern struct Config config;
 #endif
+
+/*
+      DynamicJsonDocument doc(CONFIG_DOC_SIZE);
+      JsonObject settings = doc.createNestedObject("settings");
+      JsonObject display = settings.createNestedObject("display");
+      JsonObject object = display.createNestedObject("play_one");
+      object["value"] = !animation.play_one;
+      String buffer;
+      serializeJson(doc, buffer);
+*/
