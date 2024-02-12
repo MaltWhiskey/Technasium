@@ -134,7 +134,8 @@ namespace WebServer {
       request->url());
     if (request->url().equals("/"))
       request->send(LittleFS, "/index.html", "text/html");
-    else if (request->url().equals("/gui.json")) {
+    else if (request->url().equals("/guii.json")) { // REMOVE i
+      /////////////////////////////////////////////////////////////////////////////////////////////////
       String buffer;
       config.serialize(buffer);
       request->send(200, "application/json", buffer);
@@ -161,6 +162,10 @@ namespace WebServer {
     else {
       request->redirect("/index.html");
     }
+  }
+
+  void broadcast(const char* payload) {
+    webSocket.broadcastTXT(payload);
   }
 
   void onWebSocketEvent(uint8_t client_num, WStype_t type, uint8_t* payload,

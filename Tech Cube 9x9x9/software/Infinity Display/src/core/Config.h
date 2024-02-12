@@ -5,11 +5,12 @@
 #include <LittleFS.h>
 #include <stdint.h>
 #include <string>
+#include "WebServer.h"
 
 // Json document size to hold the commands send between client/server
-#define COMMAND_DOC_SIZE 255
+#define COMMAND_DOC_SIZE 200
 // Json document size to hold the config (depends on config size)
-#define CONFIG_DOC_SIZE 8192
+#define CONFIG_DOC_SIZE 20000
 /*-----------------------------------------------------------------------------
  * Global parameters
  *
@@ -31,6 +32,7 @@ struct Config {
   struct {
     uint16_t max_milliamps = 18000;
   } power;
+
   struct {
     struct {
       char ssid[32] = "-^..^-";
@@ -41,9 +43,12 @@ struct Config {
       uint16_t port = 8080;
     } server;
   } network;
+
   struct {
+    // Do not serialize changed to disk/gui
     boolean changed = false;
     boolean play_one = false;
+    // Only serialize animation to disk
     uint8_t animation = 0;
     struct {
       float runtime = 30.0f;
@@ -177,10 +182,10 @@ struct Config {
       float runtime = 30.0f;
       float endtime = 5.0f;
       float phase_speed = 0.3f;
+      float body_diagonal = 6.5f;
       int8_t hue_speed = 30;
       uint8_t brightness = 255;
       uint8_t motionBlur = 230;
-      float body_diagonal = 6.5f;
     } starfield;
     struct {
       float runtime = 30.0f;
@@ -191,6 +196,8 @@ struct Config {
       uint8_t motionBlur = 0;
     } twinkels;
   } animation;
+
+  // Do not serialize devices
   struct {
     struct {
       float x = 0;
@@ -227,7 +234,7 @@ struct Config {
   void save() {
     if (File file = open("/config.json", FILE_WRITE)) {
       String buffer;
-      serialize(buffer);
+      serialize(buffer, true);
       int bytesWritten = file.print(buffer);
       file.close();
       Serial.printf("%u bytes written to config.json\n", bytesWritten);
@@ -273,7 +280,7 @@ struct Config {
     leaf["step"] = step;
   }
 
-  void serialize(String& buffer) {
+  void serialize(String& buffer, boolean save = false) {
     DynamicJsonDocument doc(CONFIG_DOC_SIZE);
     JsonObject settings = doc.createNestedObject("settings");
     settings["name"] = "Configuration Settings";
@@ -285,6 +292,10 @@ struct Config {
       obj["name"] = "Display Settings";
       slider(obj, "max_milliamps", "Max mAmps", power.max_milliamps, 0, 20000, 100);
       checkbox(obj, "play_one", "Cycle Animations", !animation.play_one);
+      // Save active animation to eprom, but don't create a slider on the gui.
+      if (save) {
+        slider(obj, "animation", "Active Animation", animation.animation, 0, 14, 1);
+      }
     }
     { // SETTINGS.NETWORK
       obj = settings.createNestedObject("network");
@@ -320,11 +331,189 @@ struct Config {
       slider(obj, "brightness", "Brightness", cfg.brightness);
       slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
     }
+    { // ANIMATIONS.ATOMS
+      obj = animations.createNestedObject("atoms");
+      auto& cfg = animation.atoms;
+      obj["name"] = "Atoms";
+      obj["index"] = 2;
+      slider(obj, "starttime", "Starttime", cfg.starttime);
+      slider(obj, "runtime", "Runtime", cfg.runtime);
+      slider(obj, "endtime", "Endtime", cfg.endtime);
+      slider(obj, "angle_speed", "Angle Speed", cfg.angle_speed, -180, 180, 1);
+      slider(obj, "radius", "Radius", cfg.radius, 0.0f, 16.0f, 0.25f);
+      slider(obj, "radius_start", "Radius Start", cfg.radius_start, 0.0f, 16.0f, 0.25f);
+      slider(obj, "distance", "Distance", cfg.distance, 0.0f, 16.0f, 0.25f);
+      slider(obj, "hue_speed", "Hue Speed", cfg.hue_speed);
+      slider(obj, "brightness", "Brightness", cfg.brightness);
+      slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
+    }
+    { // ANIMATIONS.CUBE
+      obj = animations.createNestedObject("cube");
+      auto& cfg = animation.cube;
+      obj["name"] = "Cube";
+      obj["index"] = 3;
+      slider(obj, "starttime", "Starttime", cfg.starttime);
+      slider(obj, "runtime", "Runtime", cfg.runtime);
+      slider(obj, "endtime", "Endtime", cfg.endtime);
+      slider(obj, "angle_speed", "Angle Speed", cfg.angle_speed, -180, 180, 1);
+      slider(obj, "radius", "Radius", cfg.radius, 0.0f, 16.0f, 0.25f);
+      slider(obj, "radius_start", "Radius Start", cfg.radius_start, 0.0f, 16.0f, 0.25f);
+      slider(obj, "hue_speed", "Hue Speed", cfg.hue_speed);
+      slider(obj, "brightness", "Brightness", cfg.brightness);
+      slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
+    }
+    { // ANIMATIONS.FIREWORKS
+      obj = animations.createNestedObject("Fireworks");
+      auto& cfg = animation.fireworks;
+      obj["name"] = "Fireworks";
+      obj["index"] = 4;
+      slider(obj, "runtime", "Runtime", cfg.runtime);
+      slider(obj, "radius", "Radius", cfg.radius, 0.0f, 16.0f, 0.25f);
+      slider(obj, "brightness", "Brightness", cfg.brightness);
+      slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
+    }
+    { // ANIMATIONS.HELIX
+      obj = animations.createNestedObject("helix");
+      auto& cfg = animation.helix;
+      obj["name"] = "Double Helix";
+      obj["index"] = 5;
+      slider(obj, "runtime", "Runtime", cfg.runtime);
+      slider(obj, "interval", "Interval", cfg.interval, 0.025f, 16.0f, 0.025f);
+      slider(obj, "phase_speed", "Phase Speed", cfg.phase_speed, 0.0f, 16.0f, 0.25f);
+      slider(obj, "angle", "Angle", cfg.angle, -180, 180, 1);
+      slider(obj, "angle_speed", "Angle Speed", cfg.angle_speed, -180, 180, 1);
+      slider(obj, "radius", "Radius", cfg.radius, 0.0f, 16.0f, 0.25f);
+      slider(obj, "resolution", "Resolution", cfg.resolution, 1.0f, 50.0f, 1.0f);
+      slider(obj, "thickness", "Thickness", cfg.thickness, 1.0f, 16.0f, 1.0f);
+      slider(obj, "hue_speed", "Hue Speed", cfg.hue_speed);
+      slider(obj, "brightness", "Brightness", cfg.brightness);
+      slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
+    }
+    { // ANIMATIONS.HELIX
+      obj = animations.createNestedObject("life");
+      auto& cfg = animation.life;
+      obj["name"] = "Life";
+      obj["index"] = 6;
+      slider(obj, "runtime", "Runtime", cfg.runtime);
+      slider(obj, "interval", "Interval", cfg.interval, 0.025f, 16.0f, 0.025f);
+      slider(obj, "brightness", "Brightness", cfg.brightness);
+      slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
+    }
+    { // ANIMATIONS.PACMAN
+      obj = animations.createNestedObject("pacman");
+      auto& cfg = animation.pacman;
+      obj["name"] = "Pacman";
+      obj["index"] = 7;
+      slider(obj, "starttime", "Starttime", cfg.starttime);
+      slider(obj, "runtime", "Runtime", cfg.runtime);
+      slider(obj, "endtime", "Endtime", cfg.endtime);
+      slider(obj, "interval", "Interval", cfg.interval, 0.025f, 16.0f, 0.025f);
+      slider(obj, "angle_speed", "Angle Speed", cfg.angle_speed, -180, 180, 1);
+      slider(obj, "radius", "Radius", cfg.radius, 0.0f, 16.0f, 0.25f);
+      slider(obj, "radius_start", "Radius Start", cfg.radius_start, 0.0f, 16.0f, 0.25f);
+      slider(obj, "brightness", "Brightness", cfg.brightness);
+      slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
+    }
+    { // ANIMATIONS.PLASMA
+      obj = animations.createNestedObject("plasma");
+      auto& cfg = animation.plasma;
+      obj["name"] = "Plasma";
+      obj["index"] = 8;
+      slider(obj, "starttime", "Starttime", cfg.starttime);
+      slider(obj, "runtime", "Runtime", cfg.runtime);
+      slider(obj, "endtime", "Endtime", cfg.endtime);
+      slider(obj, "scale_p", "Scale", cfg.scale_p, 0.0f, 1.0f, 0.001f);
+      slider(obj, "speed_x", "X-Speed", cfg.speed_x, -3.0f, 3.0f, 0.01f);
+      slider(obj, "speed_y", "Y-Speed", cfg.speed_y, -3.0f, 3.0f, 0.01f);
+      slider(obj, "speed_z", "Z-Speed", cfg.speed_z, -3.0f, 3.0f, 0.01f);
+      slider(obj, "speed_w", "W-Speed", cfg.speed_w, -3.0f, 3.0f, 0.01f);
+      slider(obj, "speed_offset_speed", "Dynamic Speed", cfg.speed_offset_speed, 0.00f, 0.10f, 0.001f);
+      slider(obj, "hue_speed", "Hue Speed", cfg.hue_speed);
+      slider(obj, "brightness", "Brightness", cfg.brightness);
+      slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
+    }
+    { // ANIMATIONS.PONG
+      obj = animations.createNestedObject("pong");
+      auto& cfg = animation.pong;
+      obj["name"] = "Pong";
+      obj["index"] = 9;
+      slider(obj, "starttime", "Starttime", cfg.starttime);
+      slider(obj, "runtime", "Runtime", cfg.runtime);
+      slider(obj, "endtime", "Endtime", cfg.endtime);
+      slider(obj, "hue_speed", "Hue Speed", cfg.hue_speed);
+      slider(obj, "brightness", "Brightness", cfg.brightness);
+      slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
+    }
+    { // ANIMATIONS.SCROLLER
+      obj = animations.createNestedObject("scroller");
+      auto& cfg = animation.scroller;
+      obj["name"] = "Scroller";
+      obj["index"] = 10;
+      slider(obj, "starttime", "Starttime", cfg.starttime);
+      slider(obj, "runtime", "Runtime", cfg.runtime);
+      slider(obj, "endtime", "Endtime", cfg.endtime);
+      slider(obj, "rotation_speed", "Rotation Speed", cfg.rotation_speed, -180, 180, 1);
+      slider(obj, "radius", "Radius", cfg.radius, 0.0f, 16.0f, 0.25f);
+      slider(obj, "brightness", "Brightness", cfg.brightness);
+      slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
+    }
+    { // ANIMATIONS.SINUS
+      obj = animations.createNestedObject("sinus");
+      auto& cfg = animation.sinus;
+      obj["name"] = "Sinus";
+      obj["index"] = 11;
+      slider(obj, "starttime", "Starttime", cfg.starttime);
+      slider(obj, "runtime", "Runtime", cfg.runtime);
+      slider(obj, "endtime", "Endtime", cfg.endtime);
+      slider(obj, "phase_speed", "Phase Speed", cfg.phase_speed, 0.0f, 16.0f, 0.25f);
+      slider(obj, "resolution", "Resolution", cfg.resolution, 1.0f, 50.0f, 1.0f);
+      slider(obj, "radius", "Radius", cfg.radius, 0.0f, 16.0f, 0.25f);
+      slider(obj, "hue_speed", "Hue Speed", cfg.hue_speed);
+      slider(obj, "brightness", "Brightness", cfg.brightness);
+      slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
+    }
+    { // ANIMATIONS.SPECTRUM
+      obj = animations.createNestedObject("spectrum");
+      auto& cfg = animation.spectrum;
+      obj["name"] = "Spectrum";
+      obj["index"] = 12;
+      slider(obj, "starttime", "Starttime", cfg.starttime);
+      slider(obj, "runtime", "Runtime", cfg.runtime);
+      slider(obj, "endtime", "Endtime", cfg.endtime);
+      slider(obj, "hue_speed", "Hue Speed", cfg.hue_speed);
+      slider(obj, "brightness", "Brightness", cfg.brightness);
+      slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
+    }
+    { // ANIMATIONS.SPECTRUM
+      obj = animations.createNestedObject("starfield");
+      auto& cfg = animation.starfield;
+      obj["name"] = "Starfield";
+      obj["index"] = 13;
+      slider(obj, "starttime", "Starttime", cfg.starttime);
+      slider(obj, "runtime", "Runtime", cfg.runtime);
+      slider(obj, "endtime", "Endtime", cfg.endtime);
+      slider(obj, "phase_speed", "Phase Speed", cfg.phase_speed, 0.0f, 16.0f, 0.25f);
+      slider(obj, "hue_speed", "Hue Speed", cfg.hue_speed);
+      slider(obj, "brightness", "Brightness", cfg.brightness);
+      slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
+    }
+    { // ANIMATIONS.TWINKELS
+      obj = animations.createNestedObject("twinkels");
+      auto& cfg = animation.twinkels;
+      obj["name"] = "Twinkels";
+      obj["index"] = 14;
+      slider(obj, "runtime", "Runtime", cfg.runtime);
+      slider(obj, "interval", "Interval", cfg.interval, 0.025f, 16.0f, 0.025f);
+      slider(obj, "fade_in_speed", "Fade In Speed", cfg.fade_in_speed, 0.0f, 16.0f, 0.25f);
+      slider(obj, "fade_out_speed", "Fade In Speed", cfg.fade_out_speed, 0.0f, 16.0f, 0.25f);
+      slider(obj, "brightness", "Brightness", cfg.brightness);
+      slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
+    }
     // SERIALIZED CONFIG
     serializeJson(doc, buffer);
   };
 
-  void deserialize(String buffer) {
+  void deserialize(String& buffer) {
     DynamicJsonDocument doc(CONFIG_DOC_SIZE);
     DeserializationError err = deserializeJson(doc, buffer);
     if (err) {
@@ -333,35 +522,66 @@ struct Config {
     }
     { // SETTINGS.DISPLAY
       JsonObject obj = doc["settings"]["display"];
-      power.max_milliamps =
-        obj["max_milliamps"]["value"] | power.max_milliamps;
+      power.max_milliamps = obj["max_milliamps"]["value"] | power.max_milliamps;
       if (obj["play_one"]) {
         animation.play_one = !obj["play_one"]["value"];
         animation.changed = true;
       }
+      animation.animation = doc["animation"]["animation"] | animation.animation;
     }
     { // SETTINGS.NETWORK
       JsonObject obj = doc["settings"]["network"];
-      strlcpy(network.wifi.ssid,
-        obj["ssid"]["value"] | network.wifi.ssid,
-        sizeof(network.wifi.ssid));
-      strlcpy(network.wifi.password,
-        obj["password"]["value"] | network.wifi.password,
-        sizeof(network.wifi.password));
-      strlcpy(
-        network.server.hostname,
-        obj["hostname"]["value"] | network.server.hostname,
-        sizeof(network.server.hostname));
-      network.server.port =
-        obj["port"]["value"] | network.server.port;
+      strlcpy(network.wifi.ssid, obj["ssid"]["value"] |
+        network.wifi.ssid, sizeof(network.wifi.ssid));
+      strlcpy(network.wifi.password, obj["password"]["value"] |
+        network.wifi.password, sizeof(network.wifi.password));
+      strlcpy(network.server.hostname, obj["hostname"]["value"] |
+        network.server.hostname, sizeof(network.server.hostname));
+      network.server.port = obj["port"]["value"] | network.server.port;
     }
+    { // SETTINGS.ACCELEROMETER
+      JsonObject obj = doc["animations"]["accelerometer"];
+      auto& cfg = animation.accelerometer;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.radius = obj["radius"]["value"] | cfg.radius;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.ARROWS
+      JsonObject obj = doc["animations"]["arrows"];
+      auto& cfg = animation.arrows;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;
+      cfg.angle_speed = obj["angle_speed"]["value"] | cfg.angle_speed;
+      cfg.radius = obj["radius"]["value"] | cfg.radius;
+      cfg.radius_start = obj["radius_start"]["value"] | cfg.radius_start;
+      cfg.distance = obj["distance"]["value"] | cfg.distance;
+      cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+  }
+
+  // Synchronize all clients to turn cycle animations off
+  void synchronize() {
+    DynamicJsonDocument doc(COMMAND_DOC_SIZE);
+    doc["event"] = "update";
+    JsonObject settings = doc.createNestedObject("settings");
+    JsonObject display = settings.createNestedObject("display");
+    JsonObject object = display.createNestedObject("play_one");
+    object["value"] = !animation.play_one;
+    String buffer;
+    serializeJson(doc, buffer);
+    WebServer::broadcast(buffer.c_str());
+    Serial.println(buffer);
   }
 
   void execute(uint8_t* char_buffer) {
     StaticJsonDocument<COMMAND_DOC_SIZE> doc;
     DeserializationError err = deserializeJson(doc, char_buffer);
     if (err) {
-      Serial.printf("Deserialization error: %s\n", err.c_str());
+      Serial.printf("Deserialization error (execute): %s\n", err.c_str());
       return;
     }
     serializeJson(doc, Serial);
@@ -372,6 +592,7 @@ struct Config {
       animation.changed = true;
       animation.play_one = true;
       animation.animation = doc["target"] | animation.animation;
+      synchronize();
     }
     else if (event.equals("update")) {
       String string_buffer;
@@ -387,13 +608,3 @@ struct Config {
 // All cpp files that include this link to a single config struct
 extern struct Config config;
 #endif
-
-/*
-      DynamicJsonDocument doc(CONFIG_DOC_SIZE);
-      JsonObject settings = doc.createNestedObject("settings");
-      JsonObject display = settings.createNestedObject("display");
-      JsonObject object = display.createNestedObject("play_one");
-      object["value"] = !animation.play_one;
-      String buffer;
-      serializeJson(doc, buffer);
-*/
