@@ -224,20 +224,27 @@ struct Config {
 
   void load() {
     if (File file = open("/config.json", FILE_READ)) {
-      String buffer = file.readString();
-      Serial.printf("%u bytes read from config.json\n", buffer.length());
+      DynamicJsonDocument doc(CONFIG_DOC_SIZE);
+      DeserializationError err = deserializeJson(doc, file);
+      if (err)
+        Serial.printf("Deserialization error while loading file: %s\n", err.c_str());
+      else
+        deserialize(doc);
       file.close();
-      deserialize(buffer);
     }
   }
 
   void save() {
     if (File file = open("/config.json", FILE_WRITE)) {
-      String buffer;
-      serialize(buffer, true);
-      int bytesWritten = file.print(buffer);
+      DynamicJsonDocument doc(CONFIG_DOC_SIZE);
+      JsonObject root = doc.as<JsonObject>();
+      // Also save active animation to fs, but don't create a slider on the gui.
+      JsonObject obj = root["setting"]["display"];
+      slider(obj, "animation", "Active Animation", animation.animation, 0, 14, 1);
+      serialize(root);
+      serializeJson(root, file);
+      Serial.printf("%u bytes written to config.json\n", file.size());
       file.close();
-      Serial.printf("%u bytes written to config.json\n", bytesWritten);
     }
   }
 
@@ -280,11 +287,10 @@ struct Config {
     leaf["step"] = step;
   }
 
-  void serialize(String& buffer, boolean save = false) {
-    DynamicJsonDocument doc(CONFIG_DOC_SIZE);
-    JsonObject settings = doc.createNestedObject("settings");
+  void serialize(JsonObject& root) {
+    JsonObject settings = root.createNestedObject("settings");
     settings["name"] = "Configuration Settings";
-    JsonObject animations = doc.createNestedObject("animations");
+    JsonObject animations = root.createNestedObject("animations");
     animations["name"] = "Animation Settings";
     JsonObject obj;
     { // SETTINGS.DISPLAY
@@ -292,10 +298,6 @@ struct Config {
       obj["name"] = "Display Settings";
       slider(obj, "max_milliamps", "Max mAmps", power.max_milliamps, 0, 20000, 100);
       checkbox(obj, "play_one", "Cycle Animations", !animation.play_one);
-      // Save active animation to eprom, but don't create a slider on the gui.
-      if (save) {
-        slider(obj, "animation", "Active Animation", animation.animation, 0, 14, 1);
-      }
     }
     { // SETTINGS.NETWORK
       obj = settings.createNestedObject("network");
@@ -509,17 +511,9 @@ struct Config {
       slider(obj, "brightness", "Brightness", cfg.brightness);
       slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
     }
-    // SERIALIZED CONFIG
-    serializeJson(doc, buffer);
   };
 
-  void deserialize(String& buffer) {
-    DynamicJsonDocument doc(CONFIG_DOC_SIZE);
-    DeserializationError err = deserializeJson(doc, buffer);
-    if (err) {
-      Serial.printf("Deserialization error: %s\n", err.c_str());
-      return;
-    }
+  void deserialize(JsonDocument& doc) {
     { // SETTINGS.DISPLAY
       JsonObject obj = doc["settings"]["display"];
       power.max_milliamps = obj["max_milliamps"]["value"] | power.max_milliamps;
@@ -563,42 +557,33 @@ struct Config {
     }
   }
 
-  // Synchronize all clients to turn cycle animations off
-  void synchronize() {
-    DynamicJsonDocument doc(COMMAND_DOC_SIZE);
-    doc["event"] = "update";
-    JsonObject settings = doc.createNestedObject("settings");
-    JsonObject display = settings.createNestedObject("display");
-    JsonObject object = display.createNestedObject("play_one");
-    object["value"] = !animation.play_one;
-    String buffer;
-    serializeJson(doc, buffer);
-    WebServer::broadcast(buffer.c_str());
-    Serial.println(buffer);
-  }
-
-  void execute(uint8_t* char_buffer) {
-    StaticJsonDocument<COMMAND_DOC_SIZE> doc;
-    DeserializationError err = deserializeJson(doc, char_buffer);
+  void execute(uint8_t* payload) {
+    StaticJsonDocument<COMMAND_DOC_SIZE>cmd;
+    DeserializationError err = deserializeJson(cmd, payload);
     if (err) {
       Serial.printf("Deserialization error (execute): %s\n", err.c_str());
       return;
     }
-    serializeJson(doc, Serial);
-    Serial.println();
 
-    String event = doc["event"];
+    String event = cmd["event"];
     if (event.equals("activate")) {
       animation.changed = true;
       animation.play_one = true;
-      animation.animation = doc["target"] | animation.animation;
-      synchronize();
+      animation.animation = cmd["target"] | animation.animation;
+      // Synchronize all clients to turn off cycle animations
+      cmd.clear();
+      cmd["event"] = "update";
+      JsonObject settings = cmd.createNestedObject("settings");
+      JsonObject display = settings.createNestedObject("display");
+      JsonObject object = display.createNestedObject("play_one");
+      object["value"] = !animation.play_one;
+      uint8_t buffer[COMMAND_DOC_SIZE];
+      serializeJson(cmd, buffer);
+      WebServer::broadcast(buffer);
     }
     else if (event.equals("update")) {
-      String string_buffer;
-      doc.remove("event");
-      serializeJson(doc, string_buffer);
-      deserialize(string_buffer);
+      cmd.remove("event");
+      deserialize(cmd);
     }
     else if (event.equals("save")) {
       save();

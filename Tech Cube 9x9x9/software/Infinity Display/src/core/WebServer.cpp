@@ -1,6 +1,7 @@
 #include "core/WebServer.h"
 
 #include <Arduino.h>
+#include <AsyncJson.h>
 #include <ArduinoJson.h>
 #include <ArduinoOTA.h>
 #include <DNSServer.h>
@@ -134,11 +135,12 @@ namespace WebServer {
       request->url());
     if (request->url().equals("/"))
       request->send(LittleFS, "/index.html", "text/html");
-    else if (request->url().equals("/guii.json")) { // REMOVE i
-      /////////////////////////////////////////////////////////////////////////////////////////////////
-      String buffer;
-      config.serialize(buffer);
-      request->send(200, "application/json", buffer);
+    else if (request->url().equals("/gui.json")) {
+      AsyncJsonResponse* response = new AsyncJsonResponse(false, CONFIG_DOC_SIZE);
+      JsonObject root = response->getRoot();
+      config.serialize(root);
+      response->setLength();
+      request->send(response);
     }
     else if (LittleFS.exists(request->url()))
       if (request->url().endsWith(".html")) {
@@ -164,7 +166,7 @@ namespace WebServer {
     }
   }
 
-  void broadcast(const char* payload) {
+  void broadcast(uint8_t* payload) {
     webSocket.broadcastTXT(payload);
   }
 
