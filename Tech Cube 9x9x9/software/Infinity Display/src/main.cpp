@@ -23,6 +23,7 @@ void setup() {
   // Enable console logging
   Serial.begin(115200);
   Serial.println("Booting ESP32");
+  delay(5000);
   // Load config from file system
   config.load();
   // Initialize animation display

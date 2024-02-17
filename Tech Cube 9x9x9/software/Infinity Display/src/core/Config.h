@@ -34,14 +34,10 @@ struct Config {
   } power;
 
   struct {
-    struct {
-      char ssid[32] = "-^..^-";
-      char password[64] = "qazwsxedc";
-    } wifi;
-    struct {
-      char hostname[64] = "icube";
-      uint16_t port = 8080;
-    } server;
+    char ssid[32] = "-^..^-";
+    char password[64] = "qazwsxedc";
+    char hostname[64] = "icube";
+    uint16_t port = 80;
   } network;
 
   struct {
@@ -237,13 +233,13 @@ struct Config {
   void save() {
     if (File file = open("/config.json", FILE_WRITE)) {
       DynamicJsonDocument doc(CONFIG_DOC_SIZE);
-      JsonObject root = doc.as<JsonObject>();
-      // Also save active animation to fs, but don't create a slider on the gui.
-      JsonObject obj = root["setting"]["display"];
-      slider(obj, "animation", "Active Animation", animation.animation, 0, 14, 1);
+      JsonObject root = doc.to<JsonObject>();
       serialize(root);
-      serializeJson(root, file);
-      Serial.printf("%u bytes written to config.json\n", file.size());
+      // Save active animation to fs, but don't create a slider on the gui.
+      JsonObject obj = root["settings"]["display"];
+      slider(obj, "animation", "Active Animation", animation.animation, 0, 14, 1);
+      size_t size = serializeJson(root, file);
+      Serial.printf("%u bytes written to config.json\n", size);
       file.close();
     }
   }
@@ -302,10 +298,10 @@ struct Config {
     { // SETTINGS.NETWORK
       obj = settings.createNestedObject("network");
       obj["name"] = "Network Settings";
-      text(obj, "ssid", "Network SSID", network.wifi.ssid, 32);
-      text(obj, "password", "Password", network.wifi.password, 64);
-      text(obj, "hostname", "Hostname", network.server.hostname, 64);
-      number(obj, "port", "Port", network.server.port, 0x0000, 0xffff, 1);
+      text(obj, "ssid", "Network SSID", network.ssid, 32);
+      text(obj, "password", "Password", network.password, 64);
+      text(obj, "hostname", "Hostname", network.hostname, 64);
+      number(obj, "port", "Port", network.port, 0x0000, 0xffff, 1);
     }
     { // ANIMATIONS.ACCELEROMETER
       obj = animations.createNestedObject("accelerometer");
@@ -521,17 +517,18 @@ struct Config {
         animation.play_one = !obj["play_one"]["value"];
         animation.changed = true;
       }
-      animation.animation = doc["animation"]["animation"] | animation.animation;
+      animation.animation = obj["animation"]["value"] | animation.animation;
+      Serial.printf("animation = %d\n", animation.animation);
     }
     { // SETTINGS.NETWORK
       JsonObject obj = doc["settings"]["network"];
-      strlcpy(network.wifi.ssid, obj["ssid"]["value"] |
-        network.wifi.ssid, sizeof(network.wifi.ssid));
-      strlcpy(network.wifi.password, obj["password"]["value"] |
-        network.wifi.password, sizeof(network.wifi.password));
-      strlcpy(network.server.hostname, obj["hostname"]["value"] |
-        network.server.hostname, sizeof(network.server.hostname));
-      network.server.port = obj["port"]["value"] | network.server.port;
+      strlcpy(network.ssid, obj["ssid"]["value"] |
+        network.ssid, sizeof(network.ssid));
+      strlcpy(network.password, obj["password"]["value"] |
+        network.password, sizeof(network.password));
+      strlcpy(network.hostname, obj["hostname"]["value"] |
+        network.hostname, sizeof(network.hostname));
+      network.port = obj["port"]["value"] | network.port;
     }
     { // SETTINGS.ACCELEROMETER
       JsonObject obj = doc["animations"]["accelerometer"];

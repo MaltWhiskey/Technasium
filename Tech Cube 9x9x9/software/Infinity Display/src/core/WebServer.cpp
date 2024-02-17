@@ -11,7 +11,6 @@
 
 #include "core/Config.h"
 
-#define WEBSERVER_PORT 80
 #define WEBSOCKET_PORT 1337
 #define ACCESSPOINT_IP 192, 168, 1, 1
 #define ACCESSPOINT_SSID "CUBE"
@@ -19,7 +18,7 @@
 #define DNSSERVER_PORT 53
 
 namespace WebServer {
-  AsyncWebServer server = AsyncWebServer(WEBSERVER_PORT);
+  AsyncWebServer server = AsyncWebServer(config.network.port);
   WebSocketsServer webSocket = WebSocketsServer(WEBSOCKET_PORT);
   IPAddress APIP = IPAddress(ACCESSPOINT_IP);
   DNSServer dnsServer;
@@ -32,7 +31,7 @@ namespace WebServer {
     }
     // Start WiFi
     Serial.print("Starting WiFi");
-    WiFi.begin(config.network.wifi.ssid, config.network.wifi.password);
+    WiFi.begin(config.network.ssid, config.network.password);
     AP_MODE = true;
     for (uint8_t i = 0; i < 100; i++) {
       if (WiFi.status() == WL_CONNECTED) {
@@ -60,13 +59,13 @@ namespace WebServer {
     // Start connected to local network
     if (!AP_MODE) {
       Serial.print("Connected to ");
-      Serial.println(config.network.wifi.ssid);
+      Serial.println(config.network.ssid);
       Serial.print("IP address: ");
       Serial.println(WiFi.localIP());
       // Start MDNS
-      if (MDNS.begin(config.network.server.hostname), WiFi.localIP()) {
+      if (MDNS.begin(config.network.hostname), WiFi.localIP()) {
         Serial.print("MDNS responder started. Hostname = ");
-        Serial.println(config.network.server.hostname);
+        Serial.println(config.network.hostname);
       }
       // Add service to MDNS-SD
       MDNS.addService("http", "tcp", 80);
@@ -83,7 +82,7 @@ namespace WebServer {
 
     // Initialize Arduino OTA
     ArduinoOTA.setPort(3232);
-    ArduinoOTA.setHostname(config.network.server.hostname);
+    ArduinoOTA.setHostname(config.network.hostname);
     ArduinoOTA
       .onStart([]() {
       String type;
