@@ -167,3 +167,9 @@ input:checked + .switch-slider:before {
 .switch-slider:hover {
   border: 2px solid#fff;
 }
+
+#joystick {
+  width : 200px;
+  height : 200px;
+  margin: auto;
+ }

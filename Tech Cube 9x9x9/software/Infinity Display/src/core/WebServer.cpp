@@ -157,6 +157,9 @@ namespace WebServer {
       else if (request->url().endsWith(".png")) {
         request->send(LittleFS, request->url(), "image/png");
       }
+      else if (request->url().endsWith(".js")) {
+        request->send(LittleFS, request->url(), "text/javascript");
+      }
       else {
         request->send(404, "text/plain", "Mime-Type Not Found");
       }

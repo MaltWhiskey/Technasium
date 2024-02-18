@@ -8,7 +8,7 @@
 #include "WebServer.h"
 
 // Json document size to hold the commands send between client/server
-#define COMMAND_DOC_SIZE 200
+#define COMMAND_DOC_SIZE 255
 // Json document size to hold the config (depends on config size)
 #define CONFIG_DOC_SIZE 20000
 /*-----------------------------------------------------------------------------
@@ -200,6 +200,10 @@ struct Config {
       float y = 0;
       float z = 0;
     } accelerometer;
+    struct {
+      float x = 0;
+      float y = 0;
+    } joystick;
     struct {
       volatile float level[9];
     } fft;
@@ -554,7 +558,7 @@ struct Config {
   }
 
   void execute(uint8_t* payload) {
-    StaticJsonDocument<COMMAND_DOC_SIZE>cmd;
+    DynamicJsonDocument cmd(COMMAND_DOC_SIZE);
     DeserializationError err = deserializeJson(cmd, payload);
     if (err) {
       Serial.printf("Deserialization error (execute): %s\n", err.c_str());
@@ -562,6 +566,7 @@ struct Config {
     }
 
     String event = cmd["event"];
+    Serial.println(event);
     if (event.equals("activate")) {
       animation.changed = true;
       animation.play_one = true;
@@ -580,6 +585,10 @@ struct Config {
     else if (event.equals("update")) {
       cmd.remove("event");
       deserialize(cmd);
+    }
+    else if (event.equals("joystick")) {
+      devices.joystick.x = cmd["x"].as<int16_t>() / 100.0f;
+      devices.joystick.y = cmd["y"].as<int16_t>() / 100.0f;
     }
     else if (event.equals("save")) {
       save();

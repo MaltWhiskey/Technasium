@@ -33,7 +33,7 @@ void setup() {
   // Create task on core 0
   xTaskCreatePinnedToCore(fft_task, "FFT", 30000, NULL, 1, &FFT_Task, 0);
   // Create task on core 0
-  xTaskCreatePinnedToCore(web_task, "WEB", 10000, NULL, 8, &WEB_Task, 0);
+  xTaskCreatePinnedToCore(web_task, "WEB", 20000, NULL, 8, &WEB_Task, 0);
 }
 /*------------------------------------------------------------------------------
  * Task Core 1 -> Animation
