@@ -518,7 +518,6 @@ struct Config {
         animation.changed = true;
       }
       animation.animation = obj["animation"]["value"] | animation.animation;
-      Serial.printf("animation = %d\n", animation.animation);
     }
     { // SETTINGS.NETWORK
       JsonObject obj = doc["settings"]["network"];
