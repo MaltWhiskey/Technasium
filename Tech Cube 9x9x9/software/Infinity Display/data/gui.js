@@ -103,10 +103,25 @@ function createGui() {
   document.getElementById("gui").innerHTML = gui;
 }
 
-// Creates the bottom user interface
+// Save the settings on the webserver
 function createFooter() {
-  let gui = `<input id="save" type="submit" value="save" onclick="saveConfig()"/>`;
+  let gui = `<input id="save_btn" type="submit" value="Save" onclick="saveConfig()"/>`;
   document.getElementById("footer").innerHTML = gui;
+}
+function saveConfig() {
+  executeCommand(`{"event":"save"}`);
+}
+
+// Reset the settings on the webserver
+function createReset() {
+  let gui = `<input id="reset_btn" type="submit" value="Factory Reset" onclick="resetConfig()"/>`;
+  document.getElementById("reset").innerHTML = gui;
+}
+function resetConfig() {
+ let text = "Are you sure you want to Factory Reset and reboot?";
+  if (confirm(text) == true) {
+    executeCommand(`{"event":"reset"}`);
+  }
 }
 
 // Creates joyStick in the user interface
@@ -153,11 +168,6 @@ function update(id, value, lbl = "") {
   let keys = key.split(".");
   executeCommand(`{"event":"update","${keys[0]}":{"${keys[1]}":{"${id}":{"value":${value}}}}}`
   );
-}
-
-// Save the settings on the webserver
-function saveConfig() {
-  executeCommand(`{"event":"save"}`);
 }
 
 // Call this to connect to the WebSocket server
@@ -220,10 +230,12 @@ function loadGui() {
     createHeader();
     // gui is dependent on selector, create gui next
     createGui();
-    // create the footer save button last
+    // create the save button
     createFooter();
     // create JoyStick
     createJoyStick();
+    // create reset button
+    createReset();
   };
   request.open("GET", "gui.json");
   request.responseType = "json";

@@ -248,6 +248,14 @@ struct Config {
     }
   }
 
+  void reset() {
+    if (LittleFS.remove("/config.json")) {
+      Serial.printf("Deleted config.json\n");
+      delay(1000);
+    }
+    ESP.restart();
+  }
+
   void slider(JsonObject& node, const char* id, const char* name, float value,
     float min = 0, float max = 255, float step = 1) {
     JsonObject leaf = node.createNestedObject(id);
@@ -592,6 +600,9 @@ struct Config {
     }
     else if (event.equals("save")) {
       save();
+    }
+    else if (event.equals("reset")) {
+      reset();
     }
   }
 };

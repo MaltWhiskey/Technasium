@@ -24,8 +24,10 @@ public:
       else {
         auto& joy = config.devices.joystick;
         pointer = position;
-        pointer.x += (2 * dt * joy.x);
-        pointer.y += (2 * dt * joy.y);
+        // pointer.x += (2.0f * dt * joy.x);
+        // pointer.y += (2.0f * dt * joy.y);
+        pointer.x = joy.x;
+        pointer.y = joy.y;
       }
       if (pointer.z < 0) {
         pointer *= -1 / pointer.z;
@@ -71,7 +73,7 @@ public:
 
   // Set pad at initial position
   void init() {
-    size = Vector3(0.55f, 0.55f, 0.10f);
+    size = Vector3(0.60f, 0.60f, 0.10f);
     position = Vector3(-size.x / 2, -size.y / 2, -1.0);
     color = Color::RED;
     exploded = false;
