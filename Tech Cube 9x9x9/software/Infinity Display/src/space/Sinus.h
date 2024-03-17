@@ -4,7 +4,7 @@
 #include "Animation.h"
 
 class Sinus : public Animation {
- private:
+private:
   float x_min = -2;
   float x_max = 2;
   float z_min = -2;
@@ -15,23 +15,22 @@ class Sinus : public Animation {
   float phase;
   float phase_speed;
 
-  static constexpr auto &settings = config.animation.sinus;
+  static constexpr auto& settings = config.animation.sinus;
 
- public:
+public:
   void init() {
     state = state_t::STARTING;
     timer_starting = settings.starttime;
     timer_running = settings.runtime;
     timer_ending = settings.endtime;
-    resolution = settings.resolution;
-    hue16_speed = settings.hue_speed * 255;
-    radius = settings.radius;
-
     phase = 0;
-    phase_speed = settings.phase_speed;
   }
 
   void draw(float dt) {
+    resolution = settings.resolution;
+    hue16_speed = settings.hue_speed * 255;
+    radius = settings.radius;
+    phase_speed = settings.phase_speed;
     setMotionBlur(settings.motionBlur);
     uint8_t brightness = settings.brightness * getBrightness();
     phase += dt * phase_speed;
@@ -41,7 +40,8 @@ class Sinus : public Animation {
       if (timer_starting.update()) {
         state = state_t::RUNNING;
         timer_running.reset();
-      } else {
+      }
+      else {
         brightness *= timer_starting.ratio();
       }
     }
@@ -55,7 +55,8 @@ class Sinus : public Animation {
       if (timer_ending.update()) {
         state = state_t::INACTIVE;
         brightness = 0;
-      } else {
+      }
+      else {
         brightness *= (1 - timer_ending.ratio());
       }
     }
@@ -73,10 +74,10 @@ class Sinus : public Animation {
         float y = sinf(phase + sqrtf(xprime * xprime + zprime * zprime));
         // display voxel on the cube scaled back to radius fitting the cube
         Vector3 point =
-            Vector3(2 * (x / resolution) - 1, 2 * (z / resolution) - 1, y);
+          Vector3(2 * (x / resolution) - 1, 2 * (z / resolution) - 1, y);
         point = q.rotate(point) * radius;
         Color c =
-            Color((hue16 >> 8) + (int8_t)(y * 64), RainbowGradientPalette);
+          Color((hue16 >> 8) + (int8_t)(y * 64), RainbowGradientPalette);
         radiate(point, c.scale(brightness), 1.0f);
       }
     }

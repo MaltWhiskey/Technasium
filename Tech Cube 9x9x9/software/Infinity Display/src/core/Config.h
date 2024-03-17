@@ -20,7 +20,7 @@
  * Animation init or draw routines need to apply these parameters to
  * dynamically set runtime parameters. Init only gets called when an animation
  * starts or restarts draw gets called every animation frame so choose wisely
- * where to apply. And let these parameters take effect.
+ * where to apply. And let these parameters take effect. (Be careful of Timers)
  *
  * After creation of the config object, call load() to load the configuration
  * from the "config.json" file and apply the values to the config struct.
@@ -31,6 +31,7 @@
 struct Config {
   struct {
     uint16_t max_milliamps = 18000;
+    float brightness = 1;
   } power;
 
   struct {
@@ -83,6 +84,7 @@ struct Config {
       float angle_speed = 160.0f;
       float radius = 3.0f;
       float radius_start = 1.0f;
+      float distance = 2.0f;
       int8_t hue_speed = -50;
       uint8_t brightness = 255;
       uint8_t motionBlur = 0;
@@ -368,6 +370,7 @@ struct Config {
       slider(obj, "angle_speed", "Angle Speed", cfg.angle_speed, -180, 180, 1);
       slider(obj, "radius", "Radius", cfg.radius, 0.0f, 16.0f, 0.25f);
       slider(obj, "radius_start", "Radius Start", cfg.radius_start, 0.0f, 16.0f, 0.25f);
+      slider(obj, "distance", "Distance", cfg.distance, 0.0f, 16.0f, 0.25f);
       slider(obj, "hue_speed", "Hue Speed", cfg.hue_speed);
       slider(obj, "brightness", "Brightness", cfg.brightness);
       slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
@@ -559,6 +562,57 @@ struct Config {
       cfg.radius = obj["radius"]["value"] | cfg.radius;
       cfg.radius_start = obj["radius_start"]["value"] | cfg.radius_start;
       cfg.distance = obj["distance"]["value"] | cfg.distance;
+      cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.ATTOMS
+      JsonObject obj = doc["animations"]["atoms"];
+      auto& cfg = animation.atoms;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;
+      cfg.angle_speed = obj["angle_speed"]["value"] | cfg.angle_speed;
+      cfg.radius = obj["radius"]["value"] | cfg.radius;
+      cfg.radius_start = obj["radius_start"]["value"] | cfg.radius_start;
+      cfg.distance = obj["distance"]["value"] | cfg.distance;
+      cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.CUBE
+      JsonObject obj = doc["animations"]["cube"];
+      auto& cfg = animation.cube;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;
+      cfg.angle_speed = obj["angle_speed"]["value"] | cfg.angle_speed;
+      cfg.radius = obj["radius"]["value"] | cfg.radius;
+      cfg.radius_start = obj["radius_start"]["value"] | cfg.radius_start;
+      cfg.distance = obj["distance"]["value"] | cfg.distance;
+      cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.FIREWORKS
+      JsonObject obj = doc["animations"]["fireworks"];
+      auto& cfg = animation.fireworks;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.radius = obj["radius"]["value"] | cfg.radius;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.HELIX
+      JsonObject obj = doc["animations"]["helix"];
+      auto& cfg = animation.helix;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.interval = obj["interval"]["value"] | cfg.interval;
+      cfg.phase_speed = obj["phase_speed"]["value"] | cfg.phase_speed;
+      cfg.angle = obj["angle"]["value"] | cfg.angle;
+      cfg.angle_speed = obj["angle_speed"]["value"] | cfg.angle_speed;
+      cfg.radius = obj["radius"]["value"] | cfg.radius;
+      cfg.resolution = obj["resolution"]["value"] | cfg.resolution;
+      cfg.thickness = obj["thickness"]["value"] | cfg.thickness;
       cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
       cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
       cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;

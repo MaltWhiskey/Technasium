@@ -5,7 +5,7 @@
 #include "power/Math8.h"
 
 class Atoms : public Animation {
- private:
+private:
   float angle;
   float angle_speed;
 
@@ -13,25 +13,23 @@ class Atoms : public Animation {
   float radius_start;
   float radius_max;
 
-  static constexpr auto &settings = config.animation.atoms;
+  static constexpr auto& settings = config.animation.atoms;
 
- public:
+public:
   void init() {
     state = state_t::STARTING;
     timer_starting = settings.starttime;
     timer_running = settings.runtime;
     timer_ending = settings.endtime;
+    angle = 0;
+  }
 
+  void draw(float dt) {
     angle_speed = settings.angle_speed;
     hue16_speed = settings.hue_speed * 255;
     radius_max = settings.radius;
     radius_start = settings.radius_start;
     distance = settings.distance;
-
-    angle = 0;
-  }
-
-  void draw(float dt) {
     setMotionBlur(settings.motionBlur);
     uint8_t brightness = settings.brightness * getBrightness();
     float radius = radius_max;
@@ -40,7 +38,8 @@ class Atoms : public Animation {
       if (timer_starting.update()) {
         state = state_t::RUNNING;
         timer_running.reset();
-      } else {
+      }
+      else {
         brightness *= timer_starting.ratio();
         radius *= timer_starting.ratio();
       }
@@ -55,7 +54,8 @@ class Atoms : public Animation {
       if (timer_ending.update()) {
         state = state_t::INACTIVE;
         brightness = 0;
-      } else {
+      }
+      else {
         brightness *= (1 - timer_ending.ratio());
         radius *= (1 - timer_ending.ratio());
       }
@@ -79,10 +79,10 @@ class Atoms : public Animation {
         Quaternion(t, Vector3(-sinf(a / 99), +sinf(a / 90), -sinf(a / 80))),
         Quaternion(t, Vector3(-sinf(a / 90), -sinf(a / 90), +sinf(a / 99))),
         Quaternion(t, Vector3(-sinf(a / 70), -sinf(a / 80), -sinf(a / 90))),
-        Quaternion(t, Vector3(-sinf(a / 99), +sinf(a / 70), +sinf(a / 80)))};
+        Quaternion(t, Vector3(-sinf(a / 99), +sinf(a / 70), +sinf(a / 80))) };
 
     // Use normalized vectors to limit radius to length 1
-    Vector3 atoms[] = {Vector3(1, 0, 0),
+    Vector3 atoms[] = { Vector3(1, 0, 0),
                        Vector3(0, 1, 0),
                        Vector3(0, 0, 1),
                        Vector3(-1, 0, 0),
@@ -90,7 +90,7 @@ class Atoms : public Animation {
                        Vector3(0, 0, -1),
                        Vector3(1, 0, 1).normalize(),
                        Vector3(1, 1, 0).normalize(),
-                       Vector3(0, 1, 1).normalize()};
+                       Vector3(0, 1, 1).normalize() };
 
     uint8_t ATOMS = sizeof(atoms) / sizeof(Vector3);
     for (uint8_t i = 0; i < ATOMS; i++) {

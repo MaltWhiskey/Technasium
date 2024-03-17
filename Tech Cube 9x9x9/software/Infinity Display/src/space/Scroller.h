@@ -6,27 +6,27 @@
 #include "power/Math8.h"
 
 class Scroller : public Animation {
- private:
+private:
   float radius;
   float text_rotation;
   float text_rotation_speed;
   String text = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-  static constexpr auto &settings = config.animation.scroller;
+  static constexpr auto& settings = config.animation.scroller;
 
- public:
+public:
   void init() {
     state = state_t::STARTING;
     timer_starting = settings.starttime;
     timer_running = settings.runtime;
     timer_ending = settings.endtime;
     text_rotation = -100.0f;
-    text_rotation_speed = settings.rotation_speed;
-    radius = settings.radius;
   }
   void set_text(String s) { text = s; }
 
   void draw(float dt) {
+    text_rotation_speed = settings.rotation_speed;
+    radius = settings.radius;
     setMotionBlur(settings.motionBlur);
     uint8_t brightness = settings.brightness * getBrightness();
 
@@ -34,7 +34,8 @@ class Scroller : public Animation {
       if (timer_starting.update()) {
         state = state_t::RUNNING;
         timer_running.reset();
-      } else {
+      }
+      else {
         brightness *= timer_starting.ratio();
       }
     }
@@ -48,7 +49,8 @@ class Scroller : public Animation {
       if (timer_ending.update()) {
         state = state_t::INACTIVE;
         brightness = 0;
-      } else {
+      }
+      else {
         brightness *= (1 - timer_ending.ratio());
       }
     }
@@ -89,7 +91,7 @@ class Scroller : public Animation {
           if (data & 0xff000000) {
             Color c = Color(data & 0xff, data >> 8 & 0xff, data >> 16 & 0xff);
             Vector3 pixel = q.rotate(
-                Vector3(x / (CHARSET_FRAME_WIDTH - 1.0f), 0, -1) * radius);
+              Vector3(x / (CHARSET_FRAME_WIDTH - 1.0f), 0, -1) * radius);
             pixel += Vector3(-radius / 2, -radius / 2, radius / 2);
             pixel = Vector3(pixel.x, pixel.y, pixel.z);
             voxel(pixel, c.scale(brightness).gamma());
