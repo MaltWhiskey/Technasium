@@ -3,8 +3,7 @@
 
 namespace MOTOR {
 
-void begin(int16_t speed);
-void loop();
+void begin(int16_t frequency);
 
 }
 #endif

@@ -39,6 +39,8 @@ void setup() {
   xTaskCreatePinnedToCore(fft_task, "FFT", 30000, NULL, 1, &FFT_Task, 0);
   // Create task on core 0
   xTaskCreatePinnedToCore(web_task, "WEB", 20000, NULL, 8, &WEB_Task, 0);
+  // Start motor interrupt @ 1000Hz (loses power above 1000Hz)
+  MOTOR::begin(-1000);
 }
 /*------------------------------------------------------------------------------
  * Task Core 1 -> Animation
@@ -61,7 +63,6 @@ void loop() {
 void web_task(void* parameter) {
   Serial.printf("Webserver running on core %d\n", xPortGetCoreID());
   static float LED_PHASE = 0;
-  MOTOR::begin(100);
   while (true) {
     // Prevents watchdog timeout
     vTaskDelay(1);
@@ -70,8 +71,6 @@ void web_task(void* parameter) {
     // Blink led button
     LED_PHASE += 0.001f; 
     analogWrite(LED_PIN, sinf(LED_PHASE)*255);
-    // Rotate stepper motor acording to set speed
-    MOTOR::loop();
   }
 }
 /*------------------------------------------------------------------------------
