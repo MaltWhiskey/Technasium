@@ -35,8 +35,8 @@ struct Config {
   } power;
 
   struct {
-    char ssid[32] = "-^..^-";
-    char password[64] = "qazwsxedc";
+    char ssid[32] = "DEV";
+    char password[64] = "VgXkh1quRYh5";
     char hostname[64] = "icube";
     uint16_t port = 80;
   } network;

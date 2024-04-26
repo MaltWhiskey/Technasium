@@ -5,7 +5,7 @@
 
 #include <Arduino.h>
 
-namespace MOTOR {
+namespace UL2003 {
 
 uint8_t step = 0;
 int16_t frequency = 0;
@@ -28,7 +28,7 @@ void IRAM_ATTR step_interrupt() {
 }
 
 void begin(int16_t frequency) {
-  MOTOR::frequency = frequency;
+  UL2003::frequency = frequency;
   for(uint8_t i = 0; i < sizeof(inputs); i++) {
     pinMode(inputs[i], OUTPUT);
     digitalWrite(inputs[i],sequence[step][i]); 
