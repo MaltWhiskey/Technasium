@@ -21,9 +21,9 @@ void begin(int16_t frequency) {
   pinMode(MS, OUTPUT);
   pinMode(SP, OUTPUT);
   pinMode(DR, OUTPUT);
-  digitalWrite(EN, LOW);
+  digitalWrite(EN, frequency == 0);
   digitalWrite(MS, LOW);
-  digitalWrite(DR, LOW);
+  digitalWrite(DR, frequency > 0);
   // 12.5 ns * 80 = 1000 ns
   static hw_timer_t * timer = timerBegin(0, 80, true);
   timerAttachInterrupt(timer, &step_interrupt, true);
