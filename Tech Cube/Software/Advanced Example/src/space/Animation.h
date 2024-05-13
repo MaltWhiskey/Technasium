@@ -2,7 +2,7 @@
 #define ANIMATION_H
 #include <stdint.h>
 
-#include "Core/Config.h"
+#include "core/Config.h"
 #include "core/Display.h"
 #include "power/Math3D.h"
 #include "power/Math8.h"
