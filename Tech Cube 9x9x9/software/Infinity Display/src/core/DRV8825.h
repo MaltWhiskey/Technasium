@@ -3,7 +3,8 @@
 
 namespace DRV8825 {
 
-void begin(int16_t frequency);
+void begin();
+void set(int16_t frequency);
 
 }
 #endif

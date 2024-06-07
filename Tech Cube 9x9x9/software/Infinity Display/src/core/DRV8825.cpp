@@ -8,6 +8,7 @@
 namespace DRV8825 {
 
 int16_t frequency = 0;
+hw_timer_t * timer = 0;
 
 void IRAM_ATTR step_interrupt() {
   GPIO.out_w1ts = ((uint32_t)1<<SP);
@@ -15,18 +16,23 @@ void IRAM_ATTR step_interrupt() {
   
 }
 
-void begin(int16_t frequency) {
-  DRV8825::frequency = frequency;
+void begin() {
   pinMode(EN, OUTPUT);
   pinMode(MS, OUTPUT);
   pinMode(SP, OUTPUT);
   pinMode(DR, OUTPUT);
-  digitalWrite(EN, frequency == 0);
   digitalWrite(MS, LOW);
-  digitalWrite(DR, frequency > 0);
+  digitalWrite(EN, true);
+  digitalWrite(DR, 0);
   // 12.5 ns * 80 = 1000 ns
-  static hw_timer_t * timer = timerBegin(0, 80, true);
+  timer = timerBegin(0, 80, true);
   timerAttachInterrupt(timer, &step_interrupt, true);
+}
+
+void set(int16_t frequency) {
+  DRV8825::frequency = frequency;
+  digitalWrite(EN, frequency == 0);
+  digitalWrite(DR, frequency > 0);
   if(frequency == 0) {
     timerAlarmDisable(timer);
   }

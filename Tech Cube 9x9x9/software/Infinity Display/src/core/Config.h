@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <string>
 #include "WebServer.h"
+#include "core/DRV8825.h"
 
 // Json document size to hold the commands send between client/server
 #define COMMAND_DOC_SIZE 255
@@ -32,6 +33,7 @@ struct Config {
   struct {
     uint16_t max_milliamps = 18000;
     float brightness = 1;
+    int16_t motor_speed = -150;
   } power;
 
   struct {
@@ -307,6 +309,7 @@ struct Config {
       obj = settings.createNestedObject("display");
       obj["name"] = "Display Settings";
       slider(obj, "max_milliamps", "Max mAmps", power.max_milliamps, 0, 20000, 100);
+      slider(obj, "motor_speed", "Motor Speed", power.motor_speed, -500, 500, 1);
       checkbox(obj, "play_one", "Cycle Animations", !animation.play_one);
     }
     { // SETTINGS.NETWORK
@@ -376,7 +379,7 @@ struct Config {
       slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
     }
     { // ANIMATIONS.FIREWORKS
-      obj = animations.createNestedObject("Fireworks");
+      obj = animations.createNestedObject("fireworks");
       auto& cfg = animation.fireworks;
       obj["name"] = "Fireworks";
       obj["index"] = 4;
@@ -528,6 +531,7 @@ struct Config {
     { // SETTINGS.DISPLAY
       JsonObject obj = doc["settings"]["display"];
       power.max_milliamps = obj["max_milliamps"]["value"] | power.max_milliamps;
+      power.motor_speed = obj["motor_speed"]["value"] | power.motor_speed;
       if (obj["play_one"]) {
         animation.play_one = !obj["play_one"]["value"];
         animation.changed = true;
@@ -647,6 +651,9 @@ struct Config {
     else if (event.equals("update")) {
       cmd.remove("event");
       deserialize(cmd);
+      if (cmd["settings"]["display"]["motor_speed"]["value"]) {
+        DRV8825::set(power.motor_speed);
+      }
     }
     else if (event.equals("joystick")) {
       devices.joystick.x = cmd["x"].as<int16_t>() / 100.0f;
