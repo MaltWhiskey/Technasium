@@ -86,7 +86,7 @@ struct Config {
       float angle_speed = 160.0f;
       float radius = 3.0f;
       float radius_start = 1.0f;
-      float distance = 2.0f;
+      float distance = 1.0f;
       int8_t hue_speed = -50;
       uint8_t brightness = 255;
       uint8_t motionBlur = 0;
@@ -618,6 +618,109 @@ struct Config {
       cfg.resolution = obj["resolution"]["value"] | cfg.resolution;
       cfg.thickness = obj["thickness"]["value"] | cfg.thickness;
       cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.LIFE
+      JsonObject obj = doc["animations"]["life"];
+      auto& cfg = animation.life;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.interval = obj["interval"]["value"] | cfg.interval;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.PACMAN
+      JsonObject obj = doc["animations"]["pacman"];
+      auto& cfg = animation.pacman;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;
+      cfg.interval = obj["interval"]["value"] | cfg.interval;
+      cfg.angle_speed = obj["angle_speed"]["value"] | cfg.angle_speed;
+      cfg.radius = obj["radius"]["value"] | cfg.radius;
+      cfg.radius_start = obj["radius_start"]["value"] | cfg.radius_start;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.PLASMA
+      JsonObject obj = doc["animations"]["plasma"];
+      auto& cfg = animation.plasma;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;
+      cfg.scale_p = obj["scale_p"]["value"] | cfg.scale_p;
+      cfg.speed_x = obj["speed_x"]["value"] | cfg.speed_x;
+      cfg.speed_y = obj["speed_y"]["value"] | cfg.speed_y;
+      cfg.speed_z = obj["speed_z"]["value"] | cfg.speed_z;
+      cfg.speed_w = obj["speed_w"]["value"] | cfg.speed_w;
+      cfg.speed_offset_speed = obj["speed_offset_speed"]["value"] | cfg.speed_offset_speed;
+      cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.PONG
+      JsonObject obj = doc["animations"]["pong"];
+      auto& cfg = animation.pong;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;
+      cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.SCROLLER
+      JsonObject obj = doc["animations"]["scroller"];
+      auto& cfg = animation.scroller;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;
+      cfg.rotation_speed = obj["rotation_speed"]["value"] | cfg.rotation_speed;
+      cfg.radius = obj["radius"]["value"] | cfg.radius;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.SINUS
+      JsonObject obj = doc["animations"]["sinus"];
+      auto& cfg = animation.sinus;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;      
+      cfg.phase_speed = obj["phase_speed"]["value"] | cfg.phase_speed;
+      cfg.resolution = obj["resolution"]["value"] | cfg.resolution;
+      cfg.radius = obj["radius"]["value"] | cfg.radius;
+      cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.SPECTRUM
+      JsonObject obj = doc["animations"]["spectrum"];
+      auto& cfg = animation.spectrum;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;      
+      cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.STARFIELD
+      JsonObject obj = doc["animations"]["starfield"];
+      auto& cfg = animation.starfield;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;      
+      cfg.phase_speed = obj["phase_speed"]["value"] | cfg.phase_speed;
+      cfg.body_diagonal = obj["body_diagonal"]["value"] | cfg.body_diagonal;
+      cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.TWINKELS
+      JsonObject obj = doc["animations"]["twinkels"];
+      auto& cfg = animation.twinkels;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.interval = obj["interval"]["value"] | cfg.interval;      
+      cfg.fade_in_speed = obj["fade_in_speed"]["value"] | cfg.fade_in_speed;
+      cfg.fade_out_speed = obj["fade_out_speed"]["value"] | cfg.fade_out_speed;
       cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
       cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
     }
