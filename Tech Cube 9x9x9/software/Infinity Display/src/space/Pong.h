@@ -154,13 +154,13 @@ public:
     timer_starting = settings.starttime;
     timer_running = settings.runtime;
     timer_ending = settings.endtime;
-    hue16_speed = settings.hue_speed * 255;
     pad.init();
     ball.init();
   }
 
   void draw(float dt) {
     setMotionBlur(settings.motionBlur);
+    hue16_speed = settings.hue_speed * 255;
     uint8_t brightness = settings.brightness * getBrightness();
     hue16 += dt * hue16_speed;
 

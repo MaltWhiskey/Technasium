@@ -500,7 +500,7 @@ struct Config {
       slider(obj, "brightness", "Brightness", cfg.brightness);
       slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
     }
-    { // ANIMATIONS.SPECTRUM
+    { // ANIMATIONS.STARFIELD
       obj = animations.createNestedObject("starfield");
       auto& cfg = animation.starfield;
       obj["name"] = "Starfield";
@@ -521,7 +521,7 @@ struct Config {
       slider(obj, "runtime", "Runtime", cfg.runtime);
       slider(obj, "interval", "Interval", cfg.interval, 0.025f, 16.0f, 0.025f);
       slider(obj, "fade_in_speed", "Fade In Speed", cfg.fade_in_speed, 0.0f, 16.0f, 0.25f);
-      slider(obj, "fade_out_speed", "Fade In Speed", cfg.fade_out_speed, 0.0f, 16.0f, 0.25f);
+      slider(obj, "fade_out_speed", "Fade Out Speed", cfg.fade_out_speed, 0.0f, 16.0f, 0.25f);
       slider(obj, "brightness", "Brightness", cfg.brightness);
       slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
     }

@@ -41,6 +41,7 @@ void setup() {
   xTaskCreatePinnedToCore(web_task, "WEB", 20000, NULL, 8, &WEB_Task, 0);
   // Start motor interrupt @ 100Hz (loses power above 1000Hz)
   DRV8825::begin();
+  DRV8825::set(config.power.motor_speed);
 }
 /*------------------------------------------------------------------------------
  * Task Core 1 -> Animation
