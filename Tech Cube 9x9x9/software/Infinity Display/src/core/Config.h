@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <string>
 #include "WebServer.h"
+#include "core/DRV8825.h"
 
 // Json document size to hold the commands send between client/server
 #define COMMAND_DOC_SIZE 255
@@ -32,6 +33,7 @@ struct Config {
   struct {
     uint16_t max_milliamps = 18000;
     float brightness = 1;
+    int16_t motor_speed = -150;
   } power;
 
   struct {
@@ -84,7 +86,7 @@ struct Config {
       float angle_speed = 160.0f;
       float radius = 3.0f;
       float radius_start = 1.0f;
-      float distance = 2.0f;
+      float distance = 1.0f;
       int8_t hue_speed = -50;
       uint8_t brightness = 255;
       uint8_t motionBlur = 0;
@@ -307,6 +309,7 @@ struct Config {
       obj = settings.createNestedObject("display");
       obj["name"] = "Display Settings";
       slider(obj, "max_milliamps", "Max mAmps", power.max_milliamps, 0, 20000, 100);
+      slider(obj, "motor_speed", "Motor Speed", power.motor_speed, -500, 500, 1);
       checkbox(obj, "play_one", "Cycle Animations", !animation.play_one);
     }
     { // SETTINGS.NETWORK
@@ -376,7 +379,7 @@ struct Config {
       slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
     }
     { // ANIMATIONS.FIREWORKS
-      obj = animations.createNestedObject("Fireworks");
+      obj = animations.createNestedObject("fireworks");
       auto& cfg = animation.fireworks;
       obj["name"] = "Fireworks";
       obj["index"] = 4;
@@ -497,7 +500,7 @@ struct Config {
       slider(obj, "brightness", "Brightness", cfg.brightness);
       slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
     }
-    { // ANIMATIONS.SPECTRUM
+    { // ANIMATIONS.STARFIELD
       obj = animations.createNestedObject("starfield");
       auto& cfg = animation.starfield;
       obj["name"] = "Starfield";
@@ -518,7 +521,7 @@ struct Config {
       slider(obj, "runtime", "Runtime", cfg.runtime);
       slider(obj, "interval", "Interval", cfg.interval, 0.025f, 16.0f, 0.025f);
       slider(obj, "fade_in_speed", "Fade In Speed", cfg.fade_in_speed, 0.0f, 16.0f, 0.25f);
-      slider(obj, "fade_out_speed", "Fade In Speed", cfg.fade_out_speed, 0.0f, 16.0f, 0.25f);
+      slider(obj, "fade_out_speed", "Fade Out Speed", cfg.fade_out_speed, 0.0f, 16.0f, 0.25f);
       slider(obj, "brightness", "Brightness", cfg.brightness);
       slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
     }
@@ -528,6 +531,7 @@ struct Config {
     { // SETTINGS.DISPLAY
       JsonObject obj = doc["settings"]["display"];
       power.max_milliamps = obj["max_milliamps"]["value"] | power.max_milliamps;
+      power.motor_speed = obj["motor_speed"]["value"] | power.motor_speed;
       if (obj["play_one"]) {
         animation.play_one = !obj["play_one"]["value"];
         animation.changed = true;
@@ -617,6 +621,109 @@ struct Config {
       cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
       cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
     }
+    { // SETTINGS.LIFE
+      JsonObject obj = doc["animations"]["life"];
+      auto& cfg = animation.life;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.interval = obj["interval"]["value"] | cfg.interval;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.PACMAN
+      JsonObject obj = doc["animations"]["pacman"];
+      auto& cfg = animation.pacman;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;
+      cfg.interval = obj["interval"]["value"] | cfg.interval;
+      cfg.angle_speed = obj["angle_speed"]["value"] | cfg.angle_speed;
+      cfg.radius = obj["radius"]["value"] | cfg.radius;
+      cfg.radius_start = obj["radius_start"]["value"] | cfg.radius_start;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.PLASMA
+      JsonObject obj = doc["animations"]["plasma"];
+      auto& cfg = animation.plasma;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;
+      cfg.scale_p = obj["scale_p"]["value"] | cfg.scale_p;
+      cfg.speed_x = obj["speed_x"]["value"] | cfg.speed_x;
+      cfg.speed_y = obj["speed_y"]["value"] | cfg.speed_y;
+      cfg.speed_z = obj["speed_z"]["value"] | cfg.speed_z;
+      cfg.speed_w = obj["speed_w"]["value"] | cfg.speed_w;
+      cfg.speed_offset_speed = obj["speed_offset_speed"]["value"] | cfg.speed_offset_speed;
+      cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.PONG
+      JsonObject obj = doc["animations"]["pong"];
+      auto& cfg = animation.pong;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;
+      cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.SCROLLER
+      JsonObject obj = doc["animations"]["scroller"];
+      auto& cfg = animation.scroller;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;
+      cfg.rotation_speed = obj["rotation_speed"]["value"] | cfg.rotation_speed;
+      cfg.radius = obj["radius"]["value"] | cfg.radius;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.SINUS
+      JsonObject obj = doc["animations"]["sinus"];
+      auto& cfg = animation.sinus;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;      
+      cfg.phase_speed = obj["phase_speed"]["value"] | cfg.phase_speed;
+      cfg.resolution = obj["resolution"]["value"] | cfg.resolution;
+      cfg.radius = obj["radius"]["value"] | cfg.radius;
+      cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.SPECTRUM
+      JsonObject obj = doc["animations"]["spectrum"];
+      auto& cfg = animation.spectrum;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;      
+      cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.STARFIELD
+      JsonObject obj = doc["animations"]["starfield"];
+      auto& cfg = animation.starfield;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;      
+      cfg.phase_speed = obj["phase_speed"]["value"] | cfg.phase_speed;
+      cfg.body_diagonal = obj["body_diagonal"]["value"] | cfg.body_diagonal;
+      cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.TWINKELS
+      JsonObject obj = doc["animations"]["twinkels"];
+      auto& cfg = animation.twinkels;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.interval = obj["interval"]["value"] | cfg.interval;      
+      cfg.fade_in_speed = obj["fade_in_speed"]["value"] | cfg.fade_in_speed;
+      cfg.fade_out_speed = obj["fade_out_speed"]["value"] | cfg.fade_out_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
   }
 
   void execute(uint8_t* payload) {
@@ -647,6 +754,9 @@ struct Config {
     else if (event.equals("update")) {
       cmd.remove("event");
       deserialize(cmd);
+      if (cmd["settings"]["display"]["motor_speed"]["value"]) {
+        DRV8825::set(power.motor_speed);
+      }
     }
     else if (event.equals("joystick")) {
       devices.joystick.x = cmd["x"].as<int16_t>() / 100.0f;

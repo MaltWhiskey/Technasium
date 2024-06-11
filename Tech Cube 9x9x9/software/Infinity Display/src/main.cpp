@@ -3,7 +3,7 @@
 
 #include "core/Config.h"
 #include "core/INMP441.h"
-#include "core/BYJ48.h"
+#include "core/DRV8825.h"
 #include "core/WebServer.h"
 #include "fft/arduinoFFT.h"
 #include "space/Animation.h"
@@ -28,7 +28,7 @@ void setup() {
   // Enable console logging
   Serial.begin(115200);
   Serial.println("Booting ESP32");
-  delay(5000);
+  // delay(5000);
   // Load config from file system
   config.load();
   // Initialize animation display
@@ -39,8 +39,9 @@ void setup() {
   xTaskCreatePinnedToCore(fft_task, "FFT", 30000, NULL, 1, &FFT_Task, 0);
   // Create task on core 0
   xTaskCreatePinnedToCore(web_task, "WEB", 20000, NULL, 8, &WEB_Task, 0);
-  // Start motor interrupt @ 1000Hz (loses power above 1000Hz)
-  MOTOR::begin(800);
+  // Start motor interrupt @ 100Hz (loses power above 1000Hz)
+  DRV8825::begin();
+  DRV8825::set(config.power.motor_speed);
 }
 /*------------------------------------------------------------------------------
  * Task Core 1 -> Animation

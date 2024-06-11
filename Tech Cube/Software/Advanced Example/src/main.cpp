@@ -1,8 +1,8 @@
 
 #include <Arduino.h>
 
-#include "Core/Config.h"
-#include "Space/animation.h"
+#include "core/Config.h"
+#include "space/Animation.h"
 /*---------------------------------------------------------------------------------------
  * Globals
  *-------------------------------------------------------------------------------------*/

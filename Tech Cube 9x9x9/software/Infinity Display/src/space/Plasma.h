@@ -117,7 +117,7 @@ public:
     speed_y = 2 * (noise.noise1(speed_offset + 050) - 0.5);    //  -1 to 1
     speed_z = 2 * (noise.noise1(speed_offset + 100) - 0.5);    //  -1 to 1
     speed_w = 2 * (noise.noise1(speed_offset + 150) - 0.5);    //  -1 to 1
-    scale_p = .15 + (noise.noise1(speed_offset + 200) / 6.6);  // .15 to .30
+    //scale_p = .15 + (noise.noise1(speed_offset + 200) / 6.6);  // .15 to .30
 
     noise_x += speed_x * dt;
     noise_y += speed_y * dt;
