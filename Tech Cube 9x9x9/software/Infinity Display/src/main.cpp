@@ -3,9 +3,12 @@
 
 #include "core/Config.h"
 #include "core/INMP441.h"
+#include "core/BYJ48.h"
 #include "core/WebServer.h"
 #include "fft/arduinoFFT.h"
 #include "space/Animation.h"
+
+#define LED_PIN 23
 /*------------------------------------------------------------------------------
  * Globals
  *----------------------------------------------------------------------------*/
@@ -20,9 +23,12 @@ void web_task(void*);
  * Initialize setup parameters
  *----------------------------------------------------------------------------*/
 void setup() {
+  // Enable power button led
+  pinMode(LED_PIN, OUTPUT);
   // Enable console logging
   Serial.begin(115200);
   Serial.println("Booting ESP32");
+  delay(5000);
   // Load config from file system
   config.load();
   // Initialize animation display
@@ -32,7 +38,9 @@ void setup() {
   // Create task on core 0
   xTaskCreatePinnedToCore(fft_task, "FFT", 30000, NULL, 1, &FFT_Task, 0);
   // Create task on core 0
-  xTaskCreatePinnedToCore(web_task, "WEB", 10000, NULL, 8, &WEB_Task, 0);
+  xTaskCreatePinnedToCore(web_task, "WEB", 20000, NULL, 8, &WEB_Task, 0);
+  // Start motor interrupt @ 1000Hz (loses power above 1000Hz)
+  MOTOR::begin(800);
 }
 /*------------------------------------------------------------------------------
  * Task Core 1 -> Animation
@@ -54,11 +62,15 @@ void loop() {
  *----------------------------------------------------------------------------*/
 void web_task(void* parameter) {
   Serial.printf("Webserver running on core %d\n", xPortGetCoreID());
+  static float LED_PHASE = 0;
   while (true) {
     // Prevents watchdog timeout
     vTaskDelay(1);
     // Check for Web server events
     WebServer::update();
+    // Blink led button
+    LED_PHASE += 0.001f; 
+    analogWrite(LED_PIN, sinf(LED_PHASE)*255);
   }
 }
 /*------------------------------------------------------------------------------

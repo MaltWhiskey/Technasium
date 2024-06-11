@@ -9,6 +9,6 @@ namespace WebServer {
     void update();
     void onIndexRequest(AsyncWebServerRequest* request);
     void onWebSocketEvent(uint8_t client_num, WStype_t type, uint8_t* payload, size_t length);
-    void broadcast(const char* payload);
+    void broadcast(uint8_t* payload);
 }
 #endif

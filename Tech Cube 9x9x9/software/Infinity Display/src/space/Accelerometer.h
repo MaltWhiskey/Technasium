@@ -14,10 +14,10 @@ class Accelerometer : public Animation {
   void init() {
     state = state_t::RUNNING;
     timer_running = settings.runtime;
-    radius = settings.radius;
   }
 
   void draw(float dt) {
+    radius = settings.radius;
     setMotionBlur(settings.motionBlur);
     uint8_t brightness = settings.brightness * getBrightness();
     if (timer_running.update()) {

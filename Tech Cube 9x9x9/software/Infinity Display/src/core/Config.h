@@ -8,7 +8,7 @@
 #include "WebServer.h"
 
 // Json document size to hold the commands send between client/server
-#define COMMAND_DOC_SIZE 200
+#define COMMAND_DOC_SIZE 255
 // Json document size to hold the config (depends on config size)
 #define CONFIG_DOC_SIZE 20000
 /*-----------------------------------------------------------------------------
@@ -20,7 +20,7 @@
  * Animation init or draw routines need to apply these parameters to
  * dynamically set runtime parameters. Init only gets called when an animation
  * starts or restarts draw gets called every animation frame so choose wisely
- * where to apply. And let these parameters take effect.
+ * where to apply. And let these parameters take effect. (Be careful of Timers)
  *
  * After creation of the config object, call load() to load the configuration
  * from the "config.json" file and apply the values to the config struct.
@@ -31,17 +31,14 @@
 struct Config {
   struct {
     uint16_t max_milliamps = 18000;
+    float brightness = 1;
   } power;
 
   struct {
-    struct {
-      char ssid[32] = "-^..^-";
-      char password[64] = "qazwsxedc";
-    } wifi;
-    struct {
-      char hostname[64] = "icube";
-      uint16_t port = 8080;
-    } server;
+    char ssid[32] = "DEV";
+    char password[64] = "VgXkh1quRYh5";
+    char hostname[64] = "icube";
+    uint16_t port = 80;
   } network;
 
   struct {
@@ -87,6 +84,7 @@ struct Config {
       float angle_speed = 160.0f;
       float radius = 3.0f;
       float radius_start = 1.0f;
+      float distance = 2.0f;
       int8_t hue_speed = -50;
       uint8_t brightness = 255;
       uint8_t motionBlur = 0;
@@ -205,6 +203,10 @@ struct Config {
       float z = 0;
     } accelerometer;
     struct {
+      float x = 0;
+      float y = 0;
+    } joystick;
+    struct {
       volatile float level[9];
     } fft;
   } devices;
@@ -224,21 +226,36 @@ struct Config {
 
   void load() {
     if (File file = open("/config.json", FILE_READ)) {
-      String buffer = file.readString();
-      Serial.printf("%u bytes read from config.json\n", buffer.length());
+      DynamicJsonDocument doc(CONFIG_DOC_SIZE);
+      DeserializationError err = deserializeJson(doc, file);
+      if (err)
+        Serial.printf("Deserialization error while loading file: %s\n", err.c_str());
+      else
+        deserialize(doc);
       file.close();
-      deserialize(buffer);
     }
   }
 
   void save() {
     if (File file = open("/config.json", FILE_WRITE)) {
-      String buffer;
-      serialize(buffer, true);
-      int bytesWritten = file.print(buffer);
+      DynamicJsonDocument doc(CONFIG_DOC_SIZE);
+      JsonObject root = doc.to<JsonObject>();
+      serialize(root);
+      // Save active animation to fs, but don't create a slider on the gui.
+      JsonObject obj = root["settings"]["display"];
+      slider(obj, "animation", "Active Animation", animation.animation, 0, 14, 1);
+      size_t size = serializeJson(root, file);
+      Serial.printf("%u bytes written to config.json\n", size);
       file.close();
-      Serial.printf("%u bytes written to config.json\n", bytesWritten);
     }
+  }
+
+  void reset() {
+    if (LittleFS.remove("/config.json")) {
+      Serial.printf("Deleted config.json\n");
+      delay(1000);
+    }
+    ESP.restart();
   }
 
   void slider(JsonObject& node, const char* id, const char* name, float value,
@@ -280,11 +297,10 @@ struct Config {
     leaf["step"] = step;
   }
 
-  void serialize(String& buffer, boolean save = false) {
-    DynamicJsonDocument doc(CONFIG_DOC_SIZE);
-    JsonObject settings = doc.createNestedObject("settings");
+  void serialize(JsonObject& root) {
+    JsonObject settings = root.createNestedObject("settings");
     settings["name"] = "Configuration Settings";
-    JsonObject animations = doc.createNestedObject("animations");
+    JsonObject animations = root.createNestedObject("animations");
     animations["name"] = "Animation Settings";
     JsonObject obj;
     { // SETTINGS.DISPLAY
@@ -292,18 +308,14 @@ struct Config {
       obj["name"] = "Display Settings";
       slider(obj, "max_milliamps", "Max mAmps", power.max_milliamps, 0, 20000, 100);
       checkbox(obj, "play_one", "Cycle Animations", !animation.play_one);
-      // Save active animation to eprom, but don't create a slider on the gui.
-      if (save) {
-        slider(obj, "animation", "Active Animation", animation.animation, 0, 14, 1);
-      }
     }
     { // SETTINGS.NETWORK
       obj = settings.createNestedObject("network");
       obj["name"] = "Network Settings";
-      text(obj, "ssid", "Network SSID", network.wifi.ssid, 32);
-      text(obj, "password", "Password", network.wifi.password, 64);
-      text(obj, "hostname", "Hostname", network.server.hostname, 64);
-      number(obj, "port", "Port", network.server.port, 0x0000, 0xffff, 1);
+      text(obj, "ssid", "Network SSID", network.ssid, 32);
+      text(obj, "password", "Password", network.password, 64);
+      text(obj, "hostname", "Hostname", network.hostname, 64);
+      number(obj, "port", "Port", network.port, 0x0000, 0xffff, 1);
     }
     { // ANIMATIONS.ACCELEROMETER
       obj = animations.createNestedObject("accelerometer");
@@ -358,6 +370,7 @@ struct Config {
       slider(obj, "angle_speed", "Angle Speed", cfg.angle_speed, -180, 180, 1);
       slider(obj, "radius", "Radius", cfg.radius, 0.0f, 16.0f, 0.25f);
       slider(obj, "radius_start", "Radius Start", cfg.radius_start, 0.0f, 16.0f, 0.25f);
+      slider(obj, "distance", "Distance", cfg.distance, 0.0f, 16.0f, 0.25f);
       slider(obj, "hue_speed", "Hue Speed", cfg.hue_speed);
       slider(obj, "brightness", "Brightness", cfg.brightness);
       slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
@@ -509,17 +522,9 @@ struct Config {
       slider(obj, "brightness", "Brightness", cfg.brightness);
       slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
     }
-    // SERIALIZED CONFIG
-    serializeJson(doc, buffer);
   };
 
-  void deserialize(String& buffer) {
-    DynamicJsonDocument doc(CONFIG_DOC_SIZE);
-    DeserializationError err = deserializeJson(doc, buffer);
-    if (err) {
-      Serial.printf("Deserialization error: %s\n", err.c_str());
-      return;
-    }
+  void deserialize(JsonDocument& doc) {
     { // SETTINGS.DISPLAY
       JsonObject obj = doc["settings"]["display"];
       power.max_milliamps = obj["max_milliamps"]["value"] | power.max_milliamps;
@@ -527,17 +532,17 @@ struct Config {
         animation.play_one = !obj["play_one"]["value"];
         animation.changed = true;
       }
-      animation.animation = doc["animation"]["animation"] | animation.animation;
+      animation.animation = obj["animation"]["value"] | animation.animation;
     }
     { // SETTINGS.NETWORK
       JsonObject obj = doc["settings"]["network"];
-      strlcpy(network.wifi.ssid, obj["ssid"]["value"] |
-        network.wifi.ssid, sizeof(network.wifi.ssid));
-      strlcpy(network.wifi.password, obj["password"]["value"] |
-        network.wifi.password, sizeof(network.wifi.password));
-      strlcpy(network.server.hostname, obj["hostname"]["value"] |
-        network.server.hostname, sizeof(network.server.hostname));
-      network.server.port = obj["port"]["value"] | network.server.port;
+      strlcpy(network.ssid, obj["ssid"]["value"] |
+        network.ssid, sizeof(network.ssid));
+      strlcpy(network.password, obj["password"]["value"] |
+        network.password, sizeof(network.password));
+      strlcpy(network.hostname, obj["hostname"]["value"] |
+        network.hostname, sizeof(network.hostname));
+      network.port = obj["port"]["value"] | network.port;
     }
     { // SETTINGS.ACCELEROMETER
       JsonObject obj = doc["animations"]["accelerometer"];
@@ -561,47 +566,97 @@ struct Config {
       cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
       cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
     }
+    { // SETTINGS.ATTOMS
+      JsonObject obj = doc["animations"]["atoms"];
+      auto& cfg = animation.atoms;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;
+      cfg.angle_speed = obj["angle_speed"]["value"] | cfg.angle_speed;
+      cfg.radius = obj["radius"]["value"] | cfg.radius;
+      cfg.radius_start = obj["radius_start"]["value"] | cfg.radius_start;
+      cfg.distance = obj["distance"]["value"] | cfg.distance;
+      cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.CUBE
+      JsonObject obj = doc["animations"]["cube"];
+      auto& cfg = animation.cube;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;
+      cfg.angle_speed = obj["angle_speed"]["value"] | cfg.angle_speed;
+      cfg.radius = obj["radius"]["value"] | cfg.radius;
+      cfg.radius_start = obj["radius_start"]["value"] | cfg.radius_start;
+      cfg.distance = obj["distance"]["value"] | cfg.distance;
+      cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.FIREWORKS
+      JsonObject obj = doc["animations"]["fireworks"];
+      auto& cfg = animation.fireworks;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.radius = obj["radius"]["value"] | cfg.radius;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.HELIX
+      JsonObject obj = doc["animations"]["helix"];
+      auto& cfg = animation.helix;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.interval = obj["interval"]["value"] | cfg.interval;
+      cfg.phase_speed = obj["phase_speed"]["value"] | cfg.phase_speed;
+      cfg.angle = obj["angle"]["value"] | cfg.angle;
+      cfg.angle_speed = obj["angle_speed"]["value"] | cfg.angle_speed;
+      cfg.radius = obj["radius"]["value"] | cfg.radius;
+      cfg.resolution = obj["resolution"]["value"] | cfg.resolution;
+      cfg.thickness = obj["thickness"]["value"] | cfg.thickness;
+      cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
   }
 
-  // Synchronize all clients to turn cycle animations off
-  void synchronize() {
-    DynamicJsonDocument doc(COMMAND_DOC_SIZE);
-    doc["event"] = "update";
-    JsonObject settings = doc.createNestedObject("settings");
-    JsonObject display = settings.createNestedObject("display");
-    JsonObject object = display.createNestedObject("play_one");
-    object["value"] = !animation.play_one;
-    String buffer;
-    serializeJson(doc, buffer);
-    WebServer::broadcast(buffer.c_str());
-    Serial.println(buffer);
-  }
-
-  void execute(uint8_t* char_buffer) {
-    StaticJsonDocument<COMMAND_DOC_SIZE> doc;
-    DeserializationError err = deserializeJson(doc, char_buffer);
+  void execute(uint8_t* payload) {
+    DynamicJsonDocument cmd(COMMAND_DOC_SIZE);
+    DeserializationError err = deserializeJson(cmd, payload);
     if (err) {
       Serial.printf("Deserialization error (execute): %s\n", err.c_str());
       return;
     }
-    serializeJson(doc, Serial);
-    Serial.println();
 
-    String event = doc["event"];
+    String event = cmd["event"];
+    Serial.println(event);
     if (event.equals("activate")) {
       animation.changed = true;
       animation.play_one = true;
-      animation.animation = doc["target"] | animation.animation;
-      synchronize();
+      animation.animation = cmd["target"] | animation.animation;
+      // Synchronize all clients to turn off cycle animations
+      cmd.clear();
+      cmd["event"] = "update";
+      JsonObject settings = cmd.createNestedObject("settings");
+      JsonObject display = settings.createNestedObject("display");
+      JsonObject object = display.createNestedObject("play_one");
+      object["value"] = !animation.play_one;
+      uint8_t buffer[COMMAND_DOC_SIZE];
+      serializeJson(cmd, buffer);
+      WebServer::broadcast(buffer);
     }
     else if (event.equals("update")) {
-      String string_buffer;
-      doc.remove("event");
-      serializeJson(doc, string_buffer);
-      deserialize(string_buffer);
+      cmd.remove("event");
+      deserialize(cmd);
+    }
+    else if (event.equals("joystick")) {
+      devices.joystick.x = cmd["x"].as<int16_t>() / 100.0f;
+      devices.joystick.y = cmd["y"].as<int16_t>() / 100.0f;
     }
     else if (event.equals("save")) {
       save();
+    }
+    else if (event.equals("reset")) {
+      reset();
     }
   }
 };

@@ -5,7 +5,7 @@
 #include "power/Math8.h"
 
 class Arrows : public Animation {
- private:
+private:
   float angle;
   float angle_speed;
 
@@ -27,25 +27,23 @@ class Arrows : public Animation {
       0b0000001111000000,  // 9
   };
 
-  static constexpr auto &settings = config.animation.arrows;
+  static constexpr auto& settings = config.animation.arrows;
 
- public:
+public:
   void init() {
     state = state_t::STARTING;
     timer_starting = settings.starttime;
     timer_running = settings.runtime;
     timer_ending = settings.endtime;
+    angle = 0;
+  }
 
+  void draw(float dt) {
     angle_speed = settings.angle_speed;
     hue16_speed = settings.hue_speed * 255;
     radius_max = settings.radius;
     radius_start = settings.radius_start;
     distance = settings.distance;
-
-    angle = 0;
-  }
-
-  void draw(float dt) {
     setMotionBlur(settings.motionBlur);
     uint8_t brightness = settings.brightness * getBrightness();
     float radius = radius_max;
@@ -54,7 +52,8 @@ class Arrows : public Animation {
       if (timer_starting.update()) {
         state = state_t::RUNNING;
         timer_running.reset();
-      } else {
+      }
+      else {
         brightness *= timer_starting.ratio();
         radius *= timer_starting.ratio();
       }
@@ -69,7 +68,8 @@ class Arrows : public Animation {
       if (timer_ending.update()) {
         state = state_t::INACTIVE;
         brightness = 0;
-      } else {
+      }
+      else {
         brightness *= (1 - timer_ending.ratio());
         radius *= (1 - timer_ending.ratio());
       }

@@ -2,7 +2,7 @@
 #define PONG_H
 #include "Animation.h"
 class Pad {
- private:
+private:
   Vector3 position;
   Vector3 size;
   Color color;
@@ -10,20 +10,25 @@ class Pad {
   Particle debris[100];
   bool exploded;
 
- public:
+public:
   bool move(const float dt, uint8_t brightness) {
     if (!exploded) {  // Exploded pads don't move
       auto& hid = config.devices.accelerometer;
       Vector3 v = Vector3(hid.x, hid.z, hid.y);
-      if (v.magnitude() > 0)
-        v.normalize();
-      else {
-        v = Vector3(0, 1, 0);
+      Vector3 pointer;
+      if (v.magnitude() > 0) {
+        Quaternion front = Quaternion(-90, Vector3::X) *
+          Quaternion(90, Vector3::Y) * Quaternion(180, Vector3::X);
+        pointer = front.rotate(v.normalize());
       }
-      Quaternion front = Quaternion(-90, Vector3::X) *
-                         Quaternion(90, Vector3::Y) *
-                         Quaternion(180, Vector3::X);
-      Vector3 pointer = front.rotate(v);
+      else {
+        auto& joy = config.devices.joystick;
+        pointer = position;
+        // pointer.x += (2.0f * dt * joy.x);
+        // pointer.y += (2.0f * dt * joy.y);
+        pointer.x = joy.x;
+        pointer.y = joy.y;
+      }
       if (pointer.z < 0) {
         pointer *= -1 / pointer.z;
         if (pointer.x > 1 - size.x)
@@ -44,14 +49,16 @@ class Pad {
           for (float z = min.z; z <= max.z; z++) {
             radiate(Vector3(x, y, z), color.scaled(brightness), 1.0f);
           }
-    } else {  // Draw the debis of the exploded pad
+    }
+    else {  // Draw the debis of the exploded pad
       uint16_t visible = 0;
       for (uint16_t i = 0; i < sizeof(debris) / sizeof(Particle); i++) {
         debris[i].move(dt);
         if (debris[i].brightness > 0) {
           visible++;
           debris[i].brightness -= dt * (1 / debris[i].seconds);
-        } else {
+        }
+        else {
           debris[i].brightness = 0;
         }
         Color c = Color(debris[i].hue, RainbowGradientPalette);
@@ -66,7 +73,7 @@ class Pad {
 
   // Set pad at initial position
   void init() {
-    size = Vector3(0.55f, 0.55f, 0.10f);
+    size = Vector3(0.60f, 0.60f, 0.10f);
     position = Vector3(-size.x / 2, -size.y / 2, -1.0);
     color = Color::RED;
     exploded = false;
@@ -76,7 +83,7 @@ class Pad {
   void deflect(Vector3 ball, Vector3& velocity) {
     if (!exploded && ball.z < position.z) {
       exploded = !((position.x < ball.x) && ((position.x + size.x) > ball.x) &&
-                   (position.y < ball.y) && ((position.y + size.y) > ball.y));
+        (position.y < ball.y) && ((position.y + size.y) > ball.y));
       if (exploded) generate_explosion();
       // deflect the ball using new velocities
       else {
@@ -97,24 +104,24 @@ class Pad {
     for (uint16_t i = 0; i < sizeof(debris) / sizeof(Particle); i++) {
       Noise noise = Animation::noise;
       Vector3 explode =
-          Vector3(noise.nextRandom(-pwr, pwr), noise.nextRandom(-pwr, pwr),
-                  noise.nextRandom(0, pwr));
+        Vector3(noise.nextRandom(-pwr, pwr), noise.nextRandom(-pwr, pwr),
+          noise.nextRandom(0, pwr));
       float x = noise.nextRandom(position.x, position.x + size.x);
       float y = noise.nextRandom(position.y, position.y + size.y);
       float z = noise.nextRandom(position.z, position.z + size.z);
-      debris[i] = {Vector3(x, y, z), explode, uint8_t(hue + random(0, 24)),
-                   1.0f, noise.nextRandom(0.5f, 1.0f)};
+      debris[i] = { Vector3(x, y, z), explode, uint8_t(hue + random(0, 24)),
+                   1.0f, noise.nextRandom(0.5f, 1.0f) };
     }
   }
 };
 
 class Ball {
- private:
+private:
   Vector3 position;
   Vector3 velocity;
   Color color;
 
- public:
+public:
   void move(const float dt, Pad& pad, uint8_t brightness, uint8_t hue) {
     Vector3 t = position + velocity * dt;
     if (t.x > 1 || t.x < -1) velocity.x = -velocity.x;
@@ -135,13 +142,13 @@ class Ball {
 };
 
 class Pong : public Animation {
- private:
+private:
   Pad pad;
   Ball ball;
 
   static constexpr auto& settings = config.animation.pong;
 
- public:
+public:
   void init() {
     state = state_t::STARTING;
     timer_starting = settings.starttime;
@@ -161,7 +168,8 @@ class Pong : public Animation {
       if (timer_starting.update()) {
         state = state_t::RUNNING;
         timer_running.reset();
-      } else {
+      }
+      else {
         brightness *= timer_starting.ratio();
       }
     }
@@ -175,7 +183,8 @@ class Pong : public Animation {
       if (timer_ending.update()) {
         state = state_t::INACTIVE;
         brightness = 0;
-      } else {
+      }
+      else {
         brightness *= (1 - timer_ending.ratio());
       }
     }
@@ -183,7 +192,8 @@ class Pong : public Animation {
     if (pad.move(dt, brightness)) {
       pad.init();
       ball.init();
-    } else {
+    }
+    else {
       ball.move(dt, pad, brightness, hue16 >> 8);
     }
   }

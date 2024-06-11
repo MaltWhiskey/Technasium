@@ -4,7 +4,7 @@
 #include "Animation.h"
 
 class Cube : public Animation {
- private:
+private:
   float angle;
   float angle_speed;
   float distance;
@@ -19,25 +19,26 @@ class Cube : public Animation {
   Vector3 f = Vector3(+1, -1, +1);
   Vector3 g = Vector3(-1, +1, +1);
   Vector3 h = Vector3(+1, +1, +1);
-  Vector3 polygon[12][2] = {{a, b}, {c, d}, {a, c}, {b, d}, {e, f}, {g, h},
-                            {e, g}, {f, h}, {a, e}, {b, f}, {c, g}, {d, h}};
+  Vector3 polygon[12][2] = { {a, b}, {c, d}, {a, c}, {b, d}, {e, f}, {g, h},
+                            {e, g}, {f, h}, {a, e}, {b, f}, {c, g}, {d, h} };
 
-  static constexpr auto &settings = config.animation.cube;
+  static constexpr auto& settings = config.animation.cube;
 
- public:
+public:
   void init() {
     state = state_t::STARTING;
     timer_starting = settings.starttime;
     timer_running = settings.runtime;
     timer_ending = settings.endtime;
-    hue16_speed = settings.hue_speed * 255;
-    angle_speed = settings.angle_speed;
-    radius_max = settings.radius;
-    radius_start = settings.radius_start;
     angle = 0;
   }
 
   void draw(float dt) {
+    hue16_speed = settings.hue_speed * 255;
+    angle_speed = settings.angle_speed;
+    radius_max = settings.radius;
+    radius_start = settings.radius_start;
+    distance = settings.distance;
     setMotionBlur(settings.motionBlur);
     uint8_t brightness = settings.brightness * getBrightness();
     float radius = radius_max;
@@ -46,7 +47,8 @@ class Cube : public Animation {
       if (timer_starting.update()) {
         state = state_t::RUNNING;
         timer_running.reset();
-      } else {
+      }
+      else {
         brightness *= timer_starting.ratio();
         radius *= timer_starting.ratio();
       }
@@ -61,7 +63,8 @@ class Cube : public Animation {
       if (timer_ending.update()) {
         state = state_t::INACTIVE;
         brightness = 0;
-      } else {
+      }
+      else {
         brightness *= (1 - timer_ending.ratio());
         radius *= (1 - timer_ending.ratio());
       }
@@ -78,7 +81,8 @@ class Cube : public Animation {
     if (angle > 6 * 360) angle -= 6 * 360;
     if (angle > 4 * 360) {
       q = Quaternion(angle, Vector3(0, 1, 0));
-    } else if (angle > 2 * 360) {
+    }
+    else if (angle > 2 * 360) {
       q = Quaternion(angle, Vector3(1, 1, 1));
     }
 
@@ -93,8 +97,8 @@ class Cube : public Animation {
       // The vector is pointing in the direction of Red -> Yellow
       for (uint8_t j = 0; j <= steps; j++)
         radiate(v1 - (inc * j),
-                Color(pixnr += 6, RainbowGradientPalette).scale(brightness),
-                1.0f);
+          Color(pixnr += 6, RainbowGradientPalette).scale(brightness),
+          distance);
     }
   }
 };

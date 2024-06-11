@@ -4,20 +4,19 @@
 #include "Animation.h"
 
 class Spectrum : public Animation {
- private:
-  static constexpr auto &settings = config.animation.spectrum;
+private:
+  static constexpr auto& settings = config.animation.spectrum;
 
- public:
+public:
   void init() {
     state = state_t::STARTING;
     timer_starting = settings.starttime;
     timer_running = settings.runtime;
     timer_ending = settings.endtime;
-    hue16_speed = settings.hue_speed * 255;
-    setMotionBlur(settings.motionBlur);
   }
 
   void draw(float dt) {
+    hue16_speed = settings.hue_speed * 255;
     setMotionBlur(settings.motionBlur);
     uint8_t brightness = settings.brightness * getBrightness();
     hue16 += dt * hue16_speed;
@@ -26,7 +25,8 @@ class Spectrum : public Animation {
       if (timer_starting.update()) {
         state = state_t::RUNNING;
         timer_running.reset();
-      } else {
+      }
+      else {
         brightness *= timer_starting.ratio();
       }
     }
@@ -40,11 +40,12 @@ class Spectrum : public Animation {
       if (timer_ending.update()) {
         state = state_t::INACTIVE;
         brightness = 0;
-      } else {
+      }
+      else {
         brightness *= (1 - timer_ending.ratio());
       }
     }
-    auto &fft = config.devices.fft;
+    auto& fft = config.devices.fft;
 
     for (uint8_t y = 0; y < 9; y++) {
       uint16_t x = fft.level[y] * CX;

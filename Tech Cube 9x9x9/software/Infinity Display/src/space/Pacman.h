@@ -6,7 +6,7 @@
 #include "power/Math8.h"
 
 class Pacman : public Animation {
- private:
+private:
   float angle;
   float angle_speed;
 
@@ -17,26 +17,24 @@ class Pacman : public Animation {
   Timer timer_interval;
 
   uint8_t frame = 0;
-  uint8_t frame_display[4] = {0, 1, 2, 1};
+  uint8_t frame_display[4] = { 0, 1, 2, 1 };
 
-  static constexpr auto &settings = config.animation.pacman;
+  static constexpr auto& settings = config.animation.pacman;
 
- public:
+public:
   void init() {
     state = state_t::STARTING;
     timer_starting = settings.starttime;
     timer_running = settings.runtime;
     timer_ending = settings.endtime;
     timer_interval = settings.interval;
-
-    angle_speed = settings.angle_speed;
-    radius_max = settings.radius;
-    radius_start = settings.radius_start;
-
     angle = 0;
   }
 
   void draw(float dt) {
+    angle_speed = settings.angle_speed;
+    radius_max = settings.radius;
+    radius_start = settings.radius_start;
     setMotionBlur(settings.motionBlur);
     uint8_t brightness = settings.brightness * getBrightness();
 
@@ -46,7 +44,8 @@ class Pacman : public Animation {
       if (timer_starting.update()) {
         state = state_t::RUNNING;
         timer_running.reset();
-      } else {
+      }
+      else {
         brightness *= timer_starting.ratio();
         radius *= timer_starting.ratio();
       }
@@ -61,7 +60,8 @@ class Pacman : public Animation {
       if (timer_ending.update()) {
         state = state_t::INACTIVE;
         brightness = 0;
-      } else {
+      }
+      else {
         brightness *= (1 - timer_ending.ratio());
         radius *= (1 - timer_ending.ratio());
       }
