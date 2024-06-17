@@ -165,7 +165,7 @@ struct Config {
       float interval = 0.1f;
       int8_t hue_speed = -50;
       uint8_t brightness = 255;
-      uint8_t motionBlur = 240;
+      uint8_t motionBlur = 220;
     } scroller2;
     struct {
       float starttime = 5.0f;
@@ -482,11 +482,24 @@ struct Config {
       slider(obj, "brightness", "Brightness", cfg.brightness);
       slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
     }
+    { // ANIMATIONS.SCROLLER2
+      obj = animations.createNestedObject("scroller2");
+      auto& cfg = animation.scroller2;
+      obj["name"] = "Scroller2";
+      obj["index"] = 11;
+      slider(obj, "starttime", "Starttime", cfg.starttime);
+      slider(obj, "runtime", "Runtime", cfg.runtime);
+      slider(obj, "endtime", "Endtime", cfg.endtime);
+      slider(obj, "hue_speed", "Hue Speed", cfg.hue_speed);
+      slider(obj, "interval", "Interval", cfg.interval, 0.025f, 16.0f, 0.025f);
+      slider(obj, "brightness", "Brightness", cfg.brightness);
+      slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
+    }
     { // ANIMATIONS.SINUS
       obj = animations.createNestedObject("sinus");
       auto& cfg = animation.sinus;
       obj["name"] = "Sinus";
-      obj["index"] = 11;
+      obj["index"] = 12;
       slider(obj, "starttime", "Starttime", cfg.starttime);
       slider(obj, "runtime", "Runtime", cfg.runtime);
       slider(obj, "endtime", "Endtime", cfg.endtime);
@@ -501,7 +514,7 @@ struct Config {
       obj = animations.createNestedObject("spectrum");
       auto& cfg = animation.spectrum;
       obj["name"] = "Spectrum";
-      obj["index"] = 12;
+      obj["index"] = 13;
       slider(obj, "starttime", "Starttime", cfg.starttime);
       slider(obj, "runtime", "Runtime", cfg.runtime);
       slider(obj, "endtime", "Endtime", cfg.endtime);
@@ -513,7 +526,7 @@ struct Config {
       obj = animations.createNestedObject("starfield");
       auto& cfg = animation.starfield;
       obj["name"] = "Starfield";
-      obj["index"] = 13;
+      obj["index"] = 14;
       slider(obj, "starttime", "Starttime", cfg.starttime);
       slider(obj, "runtime", "Runtime", cfg.runtime);
       slider(obj, "endtime", "Endtime", cfg.endtime);
@@ -526,7 +539,7 @@ struct Config {
       obj = animations.createNestedObject("twinkels");
       auto& cfg = animation.twinkels;
       obj["name"] = "Twinkels";
-      obj["index"] = 14;
+      obj["index"] = 15;
       slider(obj, "runtime", "Runtime", cfg.runtime);
       slider(obj, "interval", "Interval", cfg.interval, 0.025f, 16.0f, 0.025f);
       slider(obj, "fade_in_speed", "Fade In Speed", cfg.fade_in_speed, 0.0f, 16.0f, 0.25f);
@@ -677,7 +690,7 @@ struct Config {
       cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
       cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
     }
-    { // SETTINGS.SCROLLER
+    { // SETTINGS.SCROLLER1
       JsonObject obj = doc["animations"]["scroller1"];
       auto& cfg = animation.scroller1;
       cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
@@ -685,6 +698,17 @@ struct Config {
       cfg.endtime = obj["endtime"]["value"] | cfg.endtime;
       cfg.rotation_speed = obj["rotation_speed"]["value"] | cfg.rotation_speed;
       cfg.radius = obj["radius"]["value"] | cfg.radius;
+      cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
+      cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
+    }
+    { // SETTINGS.SCROLLER2
+      JsonObject obj = doc["animations"]["scroller2"];
+      auto& cfg = animation.scroller2;
+      cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
+      cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
+      cfg.endtime = obj["endtime"]["value"] | cfg.endtime;
+      cfg.hue_speed = obj["hue_speed"]["value"] | cfg.hue_speed;
+      cfg.interval = obj["interval"]["value"] | cfg.interval;
       cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
       cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
     }

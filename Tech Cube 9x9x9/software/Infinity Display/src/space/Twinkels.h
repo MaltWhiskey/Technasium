@@ -29,6 +29,7 @@ public:
   void init() {
     state = state_t::RUNNING;
     timer_running = settings.runtime;
+    timer_interval = settings.interval;
   }
   void set_mode(bool single, bool fade_out) {
     mode_single_color = single;
@@ -53,7 +54,6 @@ public:
   void draw(float dt) {
     fade_in_speed = settings.fade_in_speed;
     fade_out_speed = settings.fade_out_speed;
-    timer_interval = settings.interval;
     setMotionBlur(settings.motionBlur);
     uint8_t brightness = settings.brightness * getBrightness();
     uint16_t pixels_active = 0;
