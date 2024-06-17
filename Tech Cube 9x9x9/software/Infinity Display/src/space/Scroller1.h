@@ -1,18 +1,18 @@
-#ifndef SCROLLER_H
-#define SCROLLER_H
+#ifndef SCROLLER1_H
+#define SCROLLER1_H
 
 #include "Animation.h"
-#include "gfx/Charset2.h"
+#include "gfx/Charset.h"
 #include "power/Math8.h"
 
-class Scroller : public Animation {
+class Scroller1 : public Animation {
 private:
   float radius;
   float text_rotation;
   float text_rotation_speed;
-  String text = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  String text;
 
-  static constexpr auto& settings = config.animation.scroller;
+  static constexpr auto& settings = config.animation.scroller1;
 
 public:
   void init() {
@@ -103,7 +103,7 @@ public:
   }
 
   uint16_t match_char(uint16_t chr) {
-    if (chr >= ' ' && chr <= 'Z')
+    if (chr >= ' ' && chr <= '~')
       return chr - ' ';
     else
       return '#' - ' ';

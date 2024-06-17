@@ -157,7 +157,16 @@ struct Config {
       float radius = 8.0f;
       uint8_t brightness = 255;
       uint8_t motionBlur = 0;
-    } scroller;
+    } scroller1;
+    struct {
+      float starttime = 0.5f;
+      float runtime = 30.0f;
+      float endtime = 2.0f;
+      float interval = 0.1f;
+      int8_t hue_speed = -50;
+      uint8_t brightness = 255;
+      uint8_t motionBlur = 240;
+    } scroller2;
     struct {
       float starttime = 5.0f;
       float runtime = 30.0f;
@@ -460,10 +469,10 @@ struct Config {
       slider(obj, "brightness", "Brightness", cfg.brightness);
       slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
     }
-    { // ANIMATIONS.SCROLLER
-      obj = animations.createNestedObject("scroller");
-      auto& cfg = animation.scroller;
-      obj["name"] = "Scroller";
+    { // ANIMATIONS.SCROLLER1
+      obj = animations.createNestedObject("scroller1");
+      auto& cfg = animation.scroller1;
+      obj["name"] = "Scroller1";
       obj["index"] = 10;
       slider(obj, "starttime", "Starttime", cfg.starttime);
       slider(obj, "runtime", "Runtime", cfg.runtime);
@@ -669,8 +678,8 @@ struct Config {
       cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
     }
     { // SETTINGS.SCROLLER
-      JsonObject obj = doc["animations"]["scroller"];
-      auto& cfg = animation.scroller;
+      JsonObject obj = doc["animations"]["scroller1"];
+      auto& cfg = animation.scroller1;
       cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
       cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
       cfg.endtime = obj["endtime"]["value"] | cfg.endtime;
