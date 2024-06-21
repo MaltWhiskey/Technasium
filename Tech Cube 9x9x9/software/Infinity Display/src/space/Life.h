@@ -202,12 +202,11 @@ class Life : public Animation {
   void init() {
     state = state_t::RUNNING;
     timer_running = settings.runtime;
-    time_interval = settings.interval;
-    time_phase = time_interval * 2;
     game_reset();
   }
 
   void draw(float dt) {
+    time_interval = settings.interval;
     setMotionBlur(settings.motionBlur);
     uint8_t brightness = settings.brightness * getBrightness();
 
