@@ -46,9 +46,9 @@ void blink() {
   float s2 = sinf(phase * 1.1f);
   float s3 = sinf(phase * 1.2f);
 
-  etage[0].green = s1 * s1 * 255;
-  etage[1].blue = s2 * s2 * 255;
-  etage[2].red = s3 * s3 * 255;
+  etage[0].green = s1 * s1 * 0xff;
+  etage[1].blue = s2 * s2 * 0xff;
+  etage[2].red = s3 * s3 * 0xff;
   etage[3].green = etage[0].green;
   etage[3].blue = etage[1].blue;
   etage[3].red = etage[2].red;
@@ -69,7 +69,7 @@ void blink() {
     else 
       pinMode(pin[index], INPUT);
   }
-  for(uint16_t t = 0; t < 0x100; t++) {
+  for(uint16_t t = 0; t <= 0xff; t++) {
     delayMicroseconds(15);
     for(uint8_t x = 0; x < 3 ; x++) {
       uint8_t index = (line + 1 + x)&3;
