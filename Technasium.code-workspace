@@ -25,5 +25,9 @@
 			"path": "Tech Cube/Software/Chalieplex"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"cmath": "cpp"
+		}
+	}
 }
