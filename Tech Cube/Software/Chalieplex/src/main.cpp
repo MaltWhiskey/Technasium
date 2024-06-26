@@ -43,7 +43,7 @@ void blink() {
   static uint8_t colors[3];
 
   // COLOR CALCULATIONS  
-  phase += 0.001f * (millis() - ms); ms = millis();
+  phase += 0.0010f * (millis() - ms); ms = millis();
   float s1 = sinf(phase * 1.0f);
   float s2 = sinf(phase * 1.1f);
   float s3 = sinf(phase * 1.2f);
@@ -70,9 +70,6 @@ void blink() {
       pinMode(pin[index], INPUT);
   }
 
-  // DELAY SWITCHING
-  delayMicroseconds(pow(1.0015f, analogRead(pot)) - 1);
-
   // PERFORM PWM
   for(uint16_t t = 0; t <= 0xff; t++) {
     delayMicroseconds(5);
@@ -84,6 +81,8 @@ void blink() {
   }
   // DISCONNECT POWER
   pinMode(pin[line], INPUT);
+  // DELAY SWITCHING
+  delayMicroseconds(pow(1.0015f, analogRead(pot)) - 1);
   line = (line+1)&3;
 }
 
