@@ -19,7 +19,7 @@ private:
   uint8_t frame = 0;
   uint8_t frame_display[4] = { 0, 1, 2, 1 };
 
-  static constexpr auto& settings = config.animation.pacman;
+  static constexpr auto &settings = config.animation.pacman;
 
 public:
   void init() {
@@ -44,8 +44,7 @@ public:
       if (timer_starting.update()) {
         state = state_t::RUNNING;
         timer_running.reset();
-      }
-      else {
+      } else {
         brightness *= timer_starting.ratio();
         radius *= timer_starting.ratio();
       }
@@ -60,8 +59,7 @@ public:
       if (timer_ending.update()) {
         state = state_t::INACTIVE;
         brightness = 0;
-      }
-      else {
+      } else {
         brightness *= (1 - timer_ending.ratio());
         radius *= (1 - timer_ending.ratio());
       }

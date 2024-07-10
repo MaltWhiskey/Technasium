@@ -22,7 +22,7 @@ private:
   boolean mode_single_color;
   boolean mode_fade_out;
 
-  static constexpr auto& settings = config.animation.twinkels;
+  static constexpr auto &settings = config.animation.twinkels;
 
 public:
   Twinkels() { set_clear(); }
@@ -67,14 +67,12 @@ public:
               voxel(x, y, z, colors[x][y][z].scaled(brightness * t));
               duration[x][y][z] += dt;
               pixels_active++;
-            }
-            else if (duration[x][y][z] < (fade_in_speed + fade_out_speed)) {
+            } else if (duration[x][y][z] < (fade_in_speed + fade_out_speed)) {
               float t = (duration[x][y][z] - fade_in_speed) / fade_out_speed;
               voxel(x, y, z, colors[x][y][z].scaled(brightness * (1 - t)));
               duration[x][y][z] += dt;
               pixels_active++;
-            }
-            else {
+            } else {
               duration[x][y][z] = 0;
               colors[x][y][z] = Color::BLACK;
               voxel(x, y, z, Color::BLACK);
@@ -95,19 +93,16 @@ public:
         if (duration[x][y][z] == 0) {
           if (mode_single_color) {
             colors[x][y][z] = single_color;
-          }
-          else {
+          } else {
             colors[x][y][z] = Color(0, 255);
           }
         }
       }
-    }
-    else if (mode_fade_out) {
+    } else if (mode_fade_out) {
       if (pixels_active == 0) {
         state = state_t::INACTIVE;
       }
-    }
-    else {
+    } else {
       state = state_t::INACTIVE;
     }
   }

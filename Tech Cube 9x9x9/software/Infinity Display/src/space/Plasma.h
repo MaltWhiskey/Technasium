@@ -28,7 +28,7 @@ private:
   // Allocate noise memory
   uint8_t noise_map[Display::width][Display::height][Display::depth];
 
-  static constexpr auto& settings = config.animation.plasma;
+  static constexpr auto &settings = config.animation.plasma;
 
 public:
   void init() {
@@ -53,8 +53,7 @@ public:
       if (timer_starting.update()) {
         state = state_t::RUNNING;
         timer_running.reset();
-      }
-      else {
+      } else {
         brightness *= timer_starting.ratio();
       }
     }
@@ -68,8 +67,7 @@ public:
       if (timer_ending.update()) {
         state = state_t::INACTIVE;
         brightness = 0;
-      }
-      else {
+      } else {
         brightness *= (1 - timer_ending.ratio());
       }
     }
@@ -117,7 +115,7 @@ public:
     speed_y = 2 * (noise.noise1(speed_offset + 050) - 0.5);    //  -1 to 1
     speed_z = 2 * (noise.noise1(speed_offset + 100) - 0.5);    //  -1 to 1
     speed_w = 2 * (noise.noise1(speed_offset + 150) - 0.5);    //  -1 to 1
-    //scale_p = .15 + (noise.noise1(speed_offset + 200) / 6.6);  // .15 to .30
+    scale_p = .15 + (noise.noise1(speed_offset + 200) / 6.6);  // .15 to .30
 
     noise_x += speed_x * dt;
     noise_y += speed_y * dt;

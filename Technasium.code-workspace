@@ -1,34 +1,44 @@
 {
 	"folders": [
 		{
+			"name": "Infinity Display",
 			"path": "Tech Cube 9x9x9/software/Infinity Display"
 		},
 		{
+			"name": "LED Display",
+			"path": "../Mega-Cube/Software/LED Display"
+		},
+		{
+			"name": "Advanced Example",
 			"path": "Tech Cube/Software/Advanced Example"
 		},
 		{
+			"name": "Animation Example",
 			"path": "Tech Cube/Software/Animation Example"
 		},
 		{
+			"name": "Easy Example",
 			"path": "Tech Cube/Software/Easy Example"
 		},
 		{
+			"name": "Test Frame",
 			"path": "Tech Cube/Software/Test Frame"
 		},
 		{
+			"name": "Webpage",
 			"path": "Tech Cube/Software/Webpage"
 		},
 		{
+			"name": "Very Easy Example",
 			"path": "Tech Cube/Software/Very Easy Example"
 		},
 		{
+			"name": "Chalieplex",
 			"path": "Tech Cube/Software/Chalieplex"
 		},
 		{
+			"name": "Webpage-new",
 			"path": "Tech Cube/Software/Webpage-new"
-		},
-		{
-			"path": "../Mega-Cube/Software/LED Display"
 		}
 	],
 	"settings": {

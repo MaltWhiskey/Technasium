@@ -13,7 +13,7 @@ private:
   float radius_start;
   float radius_max;
 
-  static constexpr auto& settings = config.animation.atoms;
+  static constexpr auto &settings = config.animation.atoms;
 
 public:
   void init() {
@@ -79,10 +79,10 @@ public:
         Quaternion(t, Vector3(-sinf(a / 99), +sinf(a / 90), -sinf(a / 80))),
         Quaternion(t, Vector3(-sinf(a / 90), -sinf(a / 90), +sinf(a / 99))),
         Quaternion(t, Vector3(-sinf(a / 70), -sinf(a / 80), -sinf(a / 90))),
-        Quaternion(t, Vector3(-sinf(a / 99), +sinf(a / 70), +sinf(a / 80))) };
+        Quaternion(t, Vector3(-sinf(a / 99), +sinf(a / 70), +sinf(a / 80)))};
 
     // Use normalized vectors to limit radius to length 1
-    Vector3 atoms[] = { Vector3(1, 0, 0),
+    Vector3 atoms[] = {Vector3(1, 0, 0),
                        Vector3(0, 1, 0),
                        Vector3(0, 0, 1),
                        Vector3(-1, 0, 0),
@@ -90,7 +90,7 @@ public:
                        Vector3(0, 0, -1),
                        Vector3(1, 0, 1).normalize(),
                        Vector3(1, 1, 0).normalize(),
-                       Vector3(0, 1, 1).normalize() };
+                       Vector3(0, 1, 1).normalize()};
 
     uint8_t ATOMS = sizeof(atoms) / sizeof(Vector3);
     for (uint8_t i = 0; i < ATOMS; i++) {

@@ -468,9 +468,9 @@ struct Config {
       slider(obj, "motionblur", "Motion Blur", cfg.motionBlur);
     }
     { // ANIMATIONS.SCROLLER1
-      obj = animations.createNestedObject("scroller1");
+      obj = animations.createNestedObject("scroller");
       auto& cfg = animation.scroller1;
-      obj["name"] = "Scroller1";
+      obj["name"] = "Scroller";
       obj["index"] = 10;
       slider(obj, "starttime", "Starttime", cfg.starttime);
       slider(obj, "runtime", "Runtime", cfg.runtime);
@@ -688,9 +688,9 @@ struct Config {
       cfg.brightness = obj["brightness"]["value"] | cfg.brightness;
       cfg.motionBlur = obj["motionblur"]["value"] | cfg.motionBlur;
     }
-    { // SETTINGS.SCROLLER1
-      JsonObject obj = doc["animations"]["scroller1"];
-      auto& cfg = animation.scroller1;
+    { // SETTINGS.SCROLLER
+      JsonObject obj = doc["animations"]["scroller"];
+      auto& cfg = animation.scroller;
       cfg.starttime = obj["starttime"]["value"] | cfg.starttime;
       cfg.runtime = obj["runtime"]["value"] | cfg.runtime;
       cfg.endtime = obj["endtime"]["value"] | cfg.endtime;

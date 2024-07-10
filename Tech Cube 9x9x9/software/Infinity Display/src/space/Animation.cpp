@@ -10,8 +10,7 @@
 #include "Pacman.h"
 #include "Plasma.h"
 #include "Pong.h"
-#include "Scroller1.h"
-#include "Scroller2.h"
+#include "Scroller.h"
 #include "Sinus.h"
 #include "Spectrum.h"
 #include "Starfield.h"
@@ -35,21 +34,19 @@ Life life;
 Pacman pacman;
 Plasma plasma;
 Pong pong;
-Scroller1 scroller1;
-Scroller2 scroller2;
+Scroller scroller;
 Sinus sinus;
 Spectrum spectrum;
 Starfield starfield;
 Twinkels twinkels;
 Cube cube;
 
-Animation* Animations[] = { &atoms,      &sinus,    &starfield,     &fireworks1,
-                           &fireworks2, &twinkels, &helix,         &arrows,
-                           &plasma,     &pacman,   &life,          &pong,
-                           &spectrum,   &scroller1, &accelerometer, &cube,
-                           &scroller2 };
+Animation *Animations[] = {&atoms,      &sinus,    &starfield,    &fireworks1,
+                           &fireworks2, &twinkels, &helix,        &arrows,
+                           &plasma,     &pacman,   &life,         &pong,
+                           &spectrum,   &scroller, &accelerometer, &cube};
 
-const uint8_t ANIMATIONS = sizeof(Animations) / sizeof(Animation*);
+const uint8_t ANIMATIONS = sizeof(Animations) / sizeof(Animation *);
 /*----------------------------------------------------------------------------*/
 // Start display asap to minimize PL9823 blue startup
 void Animation::begin() { Display::begin(); }
@@ -65,7 +62,7 @@ void Animation::loop() {
     // Draw all active animations from the animation pool
     uint8_t active_animation_count = 0;
     for (uint8_t i = 0; i < ANIMATIONS; i++) {
-      Animation& animation = *Animations[i];
+      Animation &animation = *Animations[i];
       if (animation.state != state_t::INACTIVE) {
         animation.draw(animation_timer.dt());
       }
@@ -113,8 +110,7 @@ void FIREWORKS() {
   fireworks2.init();
   fireworks2.timer_running = fireworks1.timer_running;
 }
-void SCROLLER1() { scroller1.set_text("#MALT WHISKEY"); }
-void SCROLLER2() { scroller2.set_text("#MALT WHISKEY"); }
+void SCROLLER() { scroller.set_text("#MALT WHISKEY"); }
 void TWINKELS1() {
   twinkels.set_mode(true, false);
   twinkels.set_color(Color(255, 150, 30));
@@ -134,14 +130,13 @@ jump_item_t Animation::get_item(uint16_t index) {
       {"Pacman", "Super Pacman Run", 0, &pacman},
       {"Plasma", "Perlin noise plasma field", 0, &plasma},
       {"Pong", "The classical game of Pong", 0, &pong},
-      {"Scroller1", "Circulair text scroller", &SCROLLER1, &scroller1},
-      {"Scroller2", "Border text scroller", &SCROLLER2, &scroller2},
+      {"Scroller", "Circulair text scroller ", &SCROLLER, &scroller},
       {"Sinus", "3D Wave Function", 0, &sinus},
       {"Spectrum", "WiFi Spectrum Analyser", 0, &spectrum},
       {"Starfield", "To boldly go...", 0, &starfield},
       {"Fairylights", "Beautifull fairylights", &TWINKELS1, &twinkels},
       {"Multilights", "Multicolor fairylights", &TWINKELS2, &twinkels},
-      {0, 0, 0, 0} };
+      {0, 0, 0, 0}};
   const uint16_t JUMPITEMS = sizeof(jump_table) / sizeof(jump_item_t) - 1;
   if (index > JUMPITEMS)
     return jump_table[JUMPITEMS];
