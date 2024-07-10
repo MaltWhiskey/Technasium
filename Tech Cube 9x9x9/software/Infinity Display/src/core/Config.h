@@ -264,9 +264,7 @@ struct Config {
   void reset() {
     if (LittleFS.remove("/config.json")) {
       Serial.printf("Deleted config.json\n");
-      delay(1000);
     }
-    ESP.restart();
   }
 
   void slider(JsonObject& node, const char* id, const char* name, float value,
@@ -800,6 +798,8 @@ struct Config {
     }
     else if (event.equals("reset")) {
       reset();
+      delay(1000);
+      ESP.restart();
     }
   }
 };

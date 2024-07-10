@@ -7,7 +7,7 @@
  * DISPLAY CLASS
  *----------------------------------------------------------------------------*/
 uint8_t Display::motionBlur = 240;
-float Display::brightness = 1;
+uint8_t Display::brightness = 255;
 uint32_t Display::cubeBuffer = 0;
 Color Display::cube[2][width][height][depth];
 static CRGB leds[Display::width * Display::height * Display::depth];
@@ -41,8 +41,8 @@ void Display::update() {
 
 void Display::clear() { memset(cube[cubeBuffer], 0, sizeof(cube[0])); }
 // Set the master display brightness value
-void Display::setBrightness(const float value) { brightness = value; }
-float Display::getBrightness() { return brightness; }
+void Display::setBrightness(const uint8_t value) { brightness = value; }
+uint8_t Display::getBrightness() { return brightness; }
 // Set the motion blur value
 void Display::setMotionBlur(const uint8_t value) { motionBlur = value; }
 uint8_t Display::getMotionBlur() { return motionBlur; }
