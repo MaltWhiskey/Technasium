@@ -13,7 +13,7 @@ private:
   Vector3 stars[numStars];
   bool initialized = false;
 
-  static constexpr auto &settings = config.animation.starfield;
+  static constexpr auto& settings = config.animation.starfield;
 
 public:
   void init() {
@@ -44,7 +44,8 @@ public:
       if (timer_starting.update()) {
         state = state_t::RUNNING;
         timer_running.reset();
-      } else {
+      }
+      else {
         brightness *= timer_starting.ratio();
       }
     }
@@ -58,7 +59,8 @@ public:
       if (timer_ending.update()) {
         state = state_t::INACTIVE;
         brightness = 0;
-      } else {
+      }
+      else {
         brightness *= (1 - timer_ending.ratio());
       }
     }
@@ -70,7 +72,8 @@ public:
       if (stars[i].z > 1) {
         stars[i] =
           Vector3(noise.nextRandom(-1, 1), noise.nextRandom(-1, 1), -1);
-      } else if (stars[i].z < -1) {
+      }
+      else if (stars[i].z < -1) {
         stars[i] = Vector3(noise.nextRandom(-1, 1), noise.nextRandom(-1, 1), 1);
       }
       Color c = Color((hue16 >> 8) + (int8_t)(r * 12), RainbowGradientPalette);

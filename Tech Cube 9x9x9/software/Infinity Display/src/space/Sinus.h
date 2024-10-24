@@ -15,7 +15,7 @@ private:
   float phase;
   float phase_speed;
 
-  static constexpr auto &settings = config.animation.sinus;
+  static constexpr auto& settings = config.animation.sinus;
 
 public:
   void init() {
@@ -40,7 +40,8 @@ public:
       if (timer_starting.update()) {
         state = state_t::RUNNING;
         timer_running.reset();
-      } else {
+      }
+      else {
         brightness *= timer_starting.ratio();
       }
     }
@@ -54,7 +55,8 @@ public:
       if (timer_ending.update()) {
         state = state_t::INACTIVE;
         brightness = 0;
-      } else {
+      }
+      else {
         brightness *= (1 - timer_ending.ratio());
       }
     }

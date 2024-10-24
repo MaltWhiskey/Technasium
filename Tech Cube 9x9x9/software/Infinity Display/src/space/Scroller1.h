@@ -1,18 +1,18 @@
-#ifndef SCROLLER_H
-#define SCROLLER_H
+#ifndef SCROLLER1_H
+#define SCROLLER1_H
 
 #include "Animation.h"
 #include "gfx/Charset.h"
 #include "power/Math8.h"
 
-class Scroller : public Animation {
+class Scroller1 : public Animation {
 private:
   float radius;
   float text_rotation;
   float text_rotation_speed;
   String text;
 
-  static constexpr auto &settings = config.animation.scroller;
+  static constexpr auto& settings = config.animation.scroller1;
 
 public:
   void init() {
@@ -34,7 +34,8 @@ public:
       if (timer_starting.update()) {
         state = state_t::RUNNING;
         timer_running.reset();
-      } else {
+      }
+      else {
         brightness *= timer_starting.ratio();
       }
     }
@@ -48,7 +49,8 @@ public:
       if (timer_ending.update()) {
         state = state_t::INACTIVE;
         brightness = 0;
-      } else {
+      }
+      else {
         brightness *= (1 - timer_ending.ratio());
       }
     }

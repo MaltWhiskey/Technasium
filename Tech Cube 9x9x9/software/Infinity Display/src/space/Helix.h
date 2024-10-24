@@ -20,7 +20,7 @@ private:
 
   Timer timer_interval;
 
-  static constexpr auto &settings = config.animation.helix;
+  static constexpr auto& settings = config.animation.helix;
 
 public:
   void init() {
@@ -80,7 +80,8 @@ public:
       timer_interval = timer_interval.set_time() / 5;
       state = state_t::ENDING;
       time_reduction = true;
-    } else if (state == state_t::ENDING && !time_reduction) {
+    }
+    else if (state == state_t::ENDING && !time_reduction) {
       timer_interval = timer_interval.set_time() / 5;
       state = state_t::ENDING;
       time_reduction = true;

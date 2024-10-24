@@ -15,7 +15,7 @@ private:
   Particle debris[50];
   boolean exploded;
 
-  static constexpr auto &settings = config.animation.fireworks;
+  static constexpr auto& settings = config.animation.fireworks;
 
 public:
   void init() {
@@ -70,8 +70,8 @@ public:
           Vector3 explode =
             Vector3(noise.nextRandom(-pwr, pwr), noise.nextRandom(-pwr, pwr),
               noise.nextRandom(-pwr, pwr));
-          debris[i] = {temp, explode, uint8_t(hue + random(0, 64)), 1.0f,
-                       noise.nextRandom(1.0f, 2.0f)};
+          debris[i] = { temp, explode, uint8_t(hue + random(0, 64)), 1.0f,
+                       noise.nextRandom(1.0f, 2.0f) };
         }
       }
       else {
@@ -90,7 +90,8 @@ public:
         if (debris[i].brightness > 0) {
           visible++;
           debris[i].brightness -= dt * (1 / debris[i].seconds);
-        } else {
+        }
+        else {
           debris[i].brightness = 0;
         }
         Color c = Color(debris[i].hue, RainbowGradientPalette);

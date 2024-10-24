@@ -27,7 +27,7 @@ private:
       0b0000001111000000,  // 9
   };
 
-  static constexpr auto &settings = config.animation.arrows;
+  static constexpr auto& settings = config.animation.arrows;
 
 public:
   void init() {
