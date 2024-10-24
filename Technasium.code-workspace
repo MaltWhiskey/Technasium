@@ -21,6 +21,10 @@
 			"path": "Tech Cube/Software/Test Frame"
 		},
 		{
+			"name": "Webpage-new",
+			"path": "Tech Cube/Software/Webpage-new"
+		},
+		{
 			"name": "Webpage",
 			"path": "Tech Cube/Software/Webpage"
 		},
@@ -31,10 +35,6 @@
 		{
 			"name": "Chalieplex",
 			"path": "Tech Cube/Software/Chalieplex"
-		},
-		{
-			"name": "Webpage-new",
-			"path": "Tech Cube/Software/Webpage-new"
 		}
 	],
 	"settings": {
