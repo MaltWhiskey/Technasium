@@ -1,6 +1,7 @@
 #include "Animation.h"
 
 #include "Train.h"
+#include "Deepsleep.h"
 /*------------------------------------------------------------------------------
  * ANIMATION STATIC DEFINITIONS
  *----------------------------------------------------------------------------*/
@@ -11,7 +12,8 @@ uint16_t Animation::animation_sequence = 0;
  * ANIMATION GLOBAL DEFINITIONS
  *----------------------------------------------------------------------------*/
 Train train;
-Animation *Animations[] = {&train};
+Deepsleep deepsleep;
+Animation *Animations[] = {&train,&deepsleep};
 const uint8_t ANIMATIONS = sizeof(Animations) / sizeof(Animation *);
 /*----------------------------------------------------------------------------*/
 // Start display asap to minimize PL9823 blue startup
@@ -50,12 +52,13 @@ float Animation::fps() {
   return 0;
 }
 
+void SEQ_TRAIN_01(void) { deepsleep.init(); }
 void SEQ_TRAIN_00(void) { train.init(); }
 
 // Animation sequencer jumptable implementation
 void Animation::next() {
   static void (*jump_table[])() =  //
-      {&SEQ_TRAIN_00};
+      {&SEQ_TRAIN_00,&SEQ_TRAIN_01};
   if (animation_sequence >= sizeof(jump_table) / sizeof(void *)) {
     animation_sequence = 0;
   }

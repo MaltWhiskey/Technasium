@@ -35,6 +35,9 @@
 		{
 			"name": "Chalieplex",
 			"path": "Tech Cube/Software/Chalieplex"
+		},
+		{
+			"path": "Tech Cube/Software/Train"
 		}
 	],
 	"settings": {
